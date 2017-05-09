@@ -95,8 +95,8 @@ public final class DaoGeneticProfile {
 
             pstmt = con.prepareStatement
                     ("INSERT INTO genetic_profile (`STABLE_ID`, `CANCER_STUDY_ID`, `GENETIC_ALTERATION_TYPE`," +
-                            "`DATATYPE`, `NAME`, `DESCRIPTION`, `SHOW_PROFILE_IN_ANALYSIS_TAB`) " +
-                            "VALUES (?,?,?,?,?,?,?)");
+                            "`DATATYPE`, `NAME`, `DESCRIPTION`, `SHOW_PROFILE_IN_ANALYSIS_TAB`, `NORMALS_TISSUE_REFERENCE_ID`) " +
+                            "VALUES (?,?,?,?,?,?,?,?)");
             pstmt.setString(1, profile.getStableId());
             pstmt.setInt(2, profile.getCancerStudyId());
             pstmt.setString(3, profile.getGeneticAlterationType().name());
@@ -104,6 +104,7 @@ public final class DaoGeneticProfile {
             pstmt.setString(5, profile.getProfileName());
             pstmt.setString(6, profile.getProfileDescription());
             pstmt.setBoolean(7, profile.showProfileInAnalysisTab());
+            pstmt.setString(8, profile.getNormalsTissueReferenceId());
             rows = pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -211,6 +212,7 @@ public final class DaoGeneticProfile {
         profileType.setGeneticAlterationType(GeneticAlterationType.valueOf(rs.getString("GENETIC_ALTERATION_TYPE")));
         profileType.setDatatype(rs.getString("DATATYPE"));
         profileType.setGeneticProfileId(rs.getInt("GENETIC_PROFILE_ID"));
+        profileType.setNormalsTissueReferenceId(rs.getString("NORMALS_TISSUE_REFERENCE_ID"));
         return profileType;
     }
 

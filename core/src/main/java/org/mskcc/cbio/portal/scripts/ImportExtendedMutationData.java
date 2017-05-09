@@ -99,9 +99,9 @@ public class ImportExtendedMutationData{
 		HashSet <String> sequencedCaseSet = new HashSet<String>();
                 
                 Map<MutationEvent,MutationEvent> existingEvents = new HashMap<MutationEvent,MutationEvent>();
-                for (MutationEvent event : DaoMutation.getAllMutationEvents()) {
+               /* for (MutationEvent event : DaoMutation.getAllMutationEvents()) {
                     existingEvents.put(event, event);
-                }
+                }*/
                 Set<MutationEvent> newEvents = new HashSet<MutationEvent>();
                 
                 Map<ExtendedMutation,ExtendedMutation> mutations = new HashMap<ExtendedMutation,ExtendedMutation>();
@@ -403,7 +403,33 @@ public class ImportExtendedMutationData{
 
 					//  Filter out Mutations
 					if( myMutationFilter.acceptMutation( mutation )) {
-                                                MutationEvent event = existingEvents.get(mutation.getEvent());
+						HashMap<MutationEvent, MutationEvent> temp = new HashMap();
+						for (MutationEvent event : DaoMutation.getAllMutationEventsTemp(
+								mutation.getGene().getEntrezGeneId(), mutation.getChr(), mutation.getStartPosition(),
+								mutation.getEndPosition(), mutation.getProteinChange(), mutation.getTumorSeqAllele(),
+								mutation.getMutationType())) {
+							temp.put(event, event);
+						}
+						MutationEvent event = (MutationEvent) temp.get(mutation.getEvent());
+						if (event == null) {
+							event = (ExtendedMutation.MutationEvent) existingEvents.get(mutation.getEvent());
+						}
+						if (event != null) {
+							mutation.setEvent(event);
+						} else {
+							mutation.setMutationEventId(++mutationEventId);
+							existingEvents.put(mutation.getEvent(), mutation.getEvent());
+							newEvents.add(mutation.getEvent());
+						}
+						ExtendedMutation exist = (ExtendedMutation) mutations.get(mutation);
+						if (exist != null) {
+							ExtendedMutation merged = mergeMutationData(exist, mutation);
+							mutations.put(merged, merged);
+						} else {
+							mutations.put(mutation, mutation);
+						}
+						
+                                                /*MutationEvent event = existingEvents.get(mutation.getEvent());
 
                                                 if (event!=null) {
                                                     mutation.setEvent(event);
@@ -419,7 +445,7 @@ public class ImportExtendedMutationData{
                                                     mutations.put(merged, merged);
                                                 } else {
                                                     mutations.put(mutation,mutation);
-                                                }
+                                                }*/
                                                 //keep track:
                                                 sampleSet.add(barCode);
                                                 geneSet.add(mutation.getEntrezGeneId()+"");

@@ -63,7 +63,8 @@ META_FIELD_MAP = {
         'citation': False,
         'pmid': False,
         'groups': False,
-        'add_global_case_list': False
+        'add_global_case_list': False,
+        'is_adult_cancer': False
     },
     MetaFileTypes.SAMPLE_ATTRIBUTES: {
         'cancer_study_identifier': True,
@@ -135,7 +136,8 @@ META_FIELD_MAP = {
         'show_profile_in_analysis_tab': True,
         'profile_name': True,
         'profile_description': True,
-        'data_filename': True
+        'data_filename': True,
+        'normals_tissue_reference_id':False
     },
     MetaFileTypes.METHYLATION: {
         'cancer_study_identifier': True,
@@ -634,6 +636,19 @@ def parse_metadata_file(filename,
         return metaDictionary, meta_file_type
 
     # type-specific validations
+    
+    if meta_file_type == MetaFileTypes.EXPRESSION:
+   		#TODO: need to update this. should set normal reference id depending on genetic_alteration_type and datatype
+	    if 'normals_tissue_reference_id' in META_FIELD_MAP[meta_file_type] and metaDictionary.get('normals_tissue_reference_id',False):
+	    	if metaDictionary['normals_tissue_reference_id'] not in ['gtex','hgu133plus2']:
+	    		logger.error(
+	            "normal reference id is expected in ['gtex','hgu133plus2']",
+	            extra={'filename_': filename,
+	                   'cause': metaDictionary['normals_tissue_reference_id']})
+	        	# not a valid meta file in this study
+	        	meta_file_type = None
+	        	return metaDictionary, meta_file_type	
+        
     if meta_file_type in (MetaFileTypes.SEG, MetaFileTypes.GISTIC_GENES):
         if genome_name is not None and metaDictionary['reference_genome_id'] != genome_name:
             logger.error(

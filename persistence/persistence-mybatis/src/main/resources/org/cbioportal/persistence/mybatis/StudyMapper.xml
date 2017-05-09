@@ -18,7 +18,8 @@
             cancer_study.CITATION AS "${prefix}citation",
             cancer_study.GROUPS AS "${prefix}groups",
             cancer_study.STATUS AS "${prefix}status",
-            cancer_study.IMPORT_DATE AS "${prefix}importDate"
+            cancer_study.IMPORT_DATE AS "${prefix}importDate",
+            cancer_study.IS_ADULT_CANCER AS "${prefix}isAdultCancer"
         </if>
     </sql>
 

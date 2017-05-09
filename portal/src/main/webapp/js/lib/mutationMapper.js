@@ -14666,10 +14666,13 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 				var mutation = datum.mutation;
 				var caseIdFormat = MutationDetailsTableFormatter.getCaseId(mutation.get("caseId"));
 				var vars = {};
+				var isSamplePresent = cbio.util.localStorageUtil('harvest_samples', 'check', mutation.get("caseId").trim())
 				vars.linkToPatientView = mutation.get("linkToPatientView");
 				vars.caseId = caseIdFormat.text;
 				vars.caseIdClass = caseIdFormat.style;
 				vars.caseIdTip = caseIdFormat.tip;
+				vars.addButtonClass = isSamplePresent ? 'fa fa-minus-circle' : 'fa fa-plus-circle';
+				vars.operation = isSamplePresent ? 'Remove' : 'Add'
 
 				var templateFn = BackboneTemplateCache.getTemplateFn("mutation_table_case_id_template");
 				return templateFn(vars);
@@ -15162,6 +15165,20 @@ function MutationDetailsTable(options, gene, mutationUtil, dataProxies, dataMana
 					{
 						dataTable.fnAdjustColumnSizing();
 					}
+				});
+			},
+			"caseId":function(dataTable, dispatcher, mutationUtil, gene) {
+				$(dataTable).find('.sample-button').off("click").on("click", function(evt) {
+					var myClasses = $(this).attr("class");
+					var operation = 'delete';
+					var new_class = 'fa-minus-circle fa-plus-circle';
+					if(myClasses.indexOf("fa-plus-circle")>=0) {
+						operation = 'add';
+						new_class = 'fa-plus-circle fa-minus-circle';
+					}
+					$(this).toggleClass(new_class);
+					$(this).qtip('api').set('content.text', operation === 'add' ? 'Remove' : 'Add');
+					cbio.util.localStorageUtil('harvest_samples', operation, $(this).parent().find('a').text().trim());
 				});
 			},
 			"igvLink": function(dataTable, dispatcher, mutationUtil, gene) {

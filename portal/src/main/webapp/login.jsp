@@ -67,6 +67,28 @@
     String logout_success = request.getParameter("logout_success");
 %>
 </head>
+<style type="text/css">
+#content p {
+  /* margin-top:0px; */ margin-bottom: 15px;
+  font-family: verdana, arial, sans-serif;
+  font-size: 14px;
+  line-height: 18px;
+  color: #333333;
+  text-align: justify;
+}
+#content A:link {
+  COLOR: #1974b8; text-decoration: none;
+}
+#content A:visited {
+  COLOR: #1974b8; text-decoration: none;
+}
+#content A:active {
+  COLOR: #1974b8; text-decoration: none;
+}
+#content A:hover {
+  COLOR: #1974b8; text-decoration: underline;
+}
+</style>
 <body>
   <center>
   <div id="page_wrapper">
@@ -132,6 +154,17 @@
                   <legend>
                       Login to Portal:
                   </legend>
+                  <div id="content">
+                  <p>
+                      The PedcBioPortal for Childhood Cancer Genomics is an instance of <a href="http://www.cbioportal.org/">cBioPortal</a> 
+                      supporting the curation and pan-cancer integration of public, pediatric cancer 
+                      genomics data sets as well as 'open science' initiatives of consortia-based 
+                      efforts including the <a href="https://cbttc.org/">Children's Brain Tumor Tissue Consortium (CBTTC)</a>, 
+                      the <a href="http://www.pnoc.us/">Pediatric NeuroOncology Consortium (PNOC)</a>, and the <a href="http://www.stbaldricks.org/">St. Baldrick Pediatric</a>&nbsp;<a href="http://www.standup2cancer.org/pediatrics">Stand Up 2 Cancer Dream Team</a>. 
+                      PedcBioPortal is an integrated platform linking data visualization to available biospecimens and cloud-based computation. 
+                      All public data generated under these and other partnered initiatives are also available for access at <a href="http://www.cbioportal.org/">cBioPortal</a>. 
+                  </p>
+				  </div>
                   <p>
                     <span style="color:#666666;font-family:verdana,arial,sans-serif;font-size:145%">
                       <%= GlobalProperties.getAuthorizationMessage() %>
@@ -167,6 +200,11 @@
                     <button onclick="window.location = 'auth/google'" style="padding: 0; border:none; background: none" >
                       <IMG alt="Google+" src="images/login/googleplus_signin.png"  />
                     </button>
+                  </p>
+                  <p>
+                  	<span style="color:#666666;font-family:verdana,arial,sans-serif;font-size:145%">To access the public cBioPortal site, please visit 
+                    	<a href="http://www.cbioportal.org/" target="_blank">cbioportal.org</a>
+                    </span>
                   </p>
                 </fieldset>
 

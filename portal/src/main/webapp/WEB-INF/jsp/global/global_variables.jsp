@@ -140,10 +140,20 @@
 
     //check if show co-expression tab
     boolean showCoexpTab = false;
+    boolean showTvnTab = false;
+    
+    for(GeneticProfile  geneticProfile : profileList){
+        if(geneticProfile.getNormalsTissueReferenceId() != null) {
+            showTvnTab = true;
+            break;
+        }
+    }
+    
     GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyId);
     if (final_gp != null) {
         showCoexpTab = true;
     } 
+    
     Object patientSampleIdMap = request.getAttribute(QueryBuilder.SELECTED_PATIENT_SAMPLE_ID_MAP);
     
     String patientCaseSelect = (String)request.getAttribute(QueryBuilder.PATIENT_CASE_SELECT);

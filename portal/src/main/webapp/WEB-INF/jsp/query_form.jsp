@@ -67,11 +67,11 @@
     String localTabIndex = request.getParameter(QueryBuilder.TAB_INDEX);
     String localzScoreThreshold = request.getParameter(QueryBuilder.Z_SCORE_THRESHOLD);
     if (localzScoreThreshold == null) {
-        localzScoreThreshold = "2.0";
+        localzScoreThreshold = "1.0";
     }
     String localRppaScoreThreshold = request.getParameter(QueryBuilder.RPPA_SCORE_THRESHOLD);
     if (localRppaScoreThreshold == null) {
-        localRppaScoreThreshold = "2.0";
+        localRppaScoreThreshold = "1.0";
     }
     if (localTabIndex == null) {
         localTabIndex = QueryBuilder.TAB_VISUALIZE;

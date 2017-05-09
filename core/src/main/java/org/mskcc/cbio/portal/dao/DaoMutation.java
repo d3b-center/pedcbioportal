@@ -1427,4 +1427,40 @@ public final class DaoMutation {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
     }
+    
+    public static Set<ExtendedMutation.MutationEvent> getAllMutationEventsTemp(long entrezGeneId, String chr, long startPosition, long endPosition, String proteinChange, String tumorSeqAllele, String mutationType)
+    	    throws DaoException
+    	  {
+    	    Connection con = null;
+    	    PreparedStatement pstmt = null;
+    	    ResultSet rs = null;
+    	    Set<ExtendedMutation.MutationEvent> events = new HashSet<ExtendedMutation.MutationEvent>();
+    	    try
+    	    {
+    	      con = JdbcUtil.getDbConnection(DaoMutation.class);
+    	      pstmt = con.prepareStatement("SELECT * FROM mutation_event WHERE ENTREZ_GENE_ID=? and CHR=? and START_POSITION=? and END_POSITION=? and PROTEIN_CHANGE=? and MUTATION_TYPE=?");
+    	      
+    	      pstmt.setLong(1, entrezGeneId);
+    	      pstmt.setString(2, chr);
+    	      pstmt.setLong(3, startPosition);
+    	      pstmt.setLong(4, endPosition);
+    	      pstmt.setString(5, proteinChange);
+    	      pstmt.setString(6, mutationType);
+    	      rs = pstmt.executeQuery();
+    	      while (rs.next())
+    	      {
+    	        ExtendedMutation.MutationEvent event = extractMutationEvent(rs);
+    	        events.add(event);
+    	      }
+    	    }
+    	    catch (SQLException e)
+    	    {
+    	      throw new DaoException(e);
+    	    }
+    	    finally
+    	    {
+    	      JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+    	    }
+    	    return events;
+}
 }

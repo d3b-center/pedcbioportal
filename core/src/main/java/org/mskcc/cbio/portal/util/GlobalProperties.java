@@ -235,6 +235,14 @@ public class GlobalProperties {
 
     public static final String SHOW_CIVIC = "show.civic";
     public static final String CIVIC_URL = "civic.url";
+    
+    private static String harvestUrl;
+    @Value("${harvest.url:}") // default is empty string
+    public void setHarvestUrl(String property) { harvestUrl = property; }
+    
+    private static String pedcbioUtilsUrl;
+    @Value("${pedcbio_utils.url:}") // default is empty string
+    public void setPedcbioUtilsUrl(String property) { pedcbioUtilsUrl = property; }
 
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -716,6 +724,15 @@ public class GlobalProperties {
     public static String getSessionServiceUrl()
     {
         return sessionServiceURL;
+    }
+    public static String getHarvestUrl()
+    {
+        return harvestUrl;
+    }
+    
+    public static String getPedcbioUtilsUrl()
+    {
+        return pedcbioUtilsUrl;
     }
  
     public static String getOncoKBApiUrl()
