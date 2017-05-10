@@ -3,17 +3,18 @@ package org.cbioportal.model;
 import java.io.Serializable;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class TumorVsNormalsData implements Serializable {
 
 	private String studyId;
 	private String color;
 	private String name;
-	private String pValue;
+	private Double pValue;
 	private Boolean isTumorData;
 	private List<TumorVsNormalsDataSampleDataObject> data;
-	private Boolean isZScore;
+	@JsonIgnore
+	private Boolean isLog = false;
 
 	public String getStudyId() {
 		return studyId;
@@ -39,11 +40,11 @@ public class TumorVsNormalsData implements Serializable {
 		this.name = name;
 	}
 
-	public String getpValue() {
+	public Double getpValue() {
 		return pValue;
 	}
 
-	public void setpValue(String pValue) {
+	public void setpValue(Double pValue) {
 		this.pValue = pValue;
 	}
 
@@ -63,17 +64,23 @@ public class TumorVsNormalsData implements Serializable {
 		this.isTumorData = isTumorData;
 	}
 
-	public Boolean getIsZScore() {
-		return isZScore;
+	public Boolean getIsLog() {
+		return isLog;
 	}
 
-	public void setIsZScore(Boolean isZScore) {
-		this.isZScore = isZScore;
+	public void setIsLog(Boolean isLog) {
+		this.isLog = isLog;
 	}
 
-	@JsonIgnoreProperties
+	/**
+	 * 
+	 * return log values
+	 */
+	@JsonIgnore
 	public double[] getSamplesData() {
-		return this.getData().stream().mapToDouble(y -> y.getValue()).toArray();
+
+		return this.getData().stream()
+				.mapToDouble(y -> this.getIsLog() ? y.getValue() : (Math.log1p(y.getValue()) / Math.log(2))).toArray();
 	}
 
 }

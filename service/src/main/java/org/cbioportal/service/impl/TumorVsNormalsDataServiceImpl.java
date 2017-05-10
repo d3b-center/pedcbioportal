@@ -38,10 +38,10 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 
 	@Autowired
 	private CancerTypeService cancerTypeService;
-	
+
 	@Autowired
 	private GeneService geneService;
-	
+
 	@Autowired
 	private GeneticDataService geneticDataService;
 
@@ -57,8 +57,8 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 
 	@Override
 	@PreAuthorize("hasPermission(#geneticProfileId, 'List<GeneticProfileId>', 'read')")
-	public List<TumorVsNormalsData> getTVNData(Map<String, List<String>> geneticProfileSamplesMap, String normalsReferenceId,
-			String geneSymbol, Boolean inputzScoreFlag, Boolean clacpValues)
+	public List<TumorVsNormalsData> getTVNData(Map<String, List<String>> geneticProfileSamplesMap,
+			String normalsReferenceId, String geneSymbol, Boolean inputzScoreFlag, Boolean clacpValues)
 					throws GeneticProfileNotFoundException, GeneNotFoundException {
 		Gene gene = geneService.getGene(geneSymbol);
 
@@ -90,11 +90,11 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 					.filter(normals_data -> normals_data.getValue().size() > 1).map(tissueObject -> {
 						TumorVsNormalsData tvnData = new TumorVsNormalsData();
 						tvnData.setIsTumorData(false);
-						tvnData.setIsZScore(false);
+						tvnData.setIsLog(false);
 						tvnData.setName(tissueObject.getKey());
 						List<TumorVsNormalsDataSampleDataObject> tvnSampleDataObjects = tissueObject.getValue().stream()
 								.map(sampleObject -> {
-							Double value = 1d + sampleObject.getValue();
+							Double value = sampleObject.getValue();
 							return new TumorVsNormalsDataSampleDataObject(sampleObject.getSample_id(), value);
 						}).collect(Collectors.toList());
 
@@ -116,26 +116,29 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 
 			// process tumor data
 			List<TumorVsNormalsData> tumorData = tumorInputData.entrySet().stream()
-					.filter(x -> (x.getKey().getNormalsTissueReferenceId() != null
-							&& x.getKey().getNormalsTissueReferenceId().equals(normalsReferenceId)))
-					.map(x -> {
+					.filter(geneticProfileData -> (geneticProfileData.getKey().getNormalsTissueReferenceId() != null
+							&& geneticProfileData.getKey().getNormalsTissueReferenceId().equals(normalsReferenceId)))
+					.map(geneticProfileData -> {
 						TumorVsNormalsData tvnData = new TumorVsNormalsData();
 						List<GeneticData> values_temp;
 						try {
-							values_temp = geneticDataService.fetchGeneticData(x.getKey().getStableId(), x.getValue(),
+							values_temp = geneticDataService.fetchGeneticData(geneticProfileData.getKey().getStableId(),
+									geneticProfileData.getValue(),
 									new ArrayList<>(Arrays.asList(gene.getEntrezGeneId())), "SUMMARY");
-
+							Boolean isDataLogd = geneticProfileData.getKey().getStableId().endsWith("mrna_U133");
+							
 							tvnData.setIsTumorData(true);
-							tvnData.setIsZScore(x.getKey().getDatatype() == "Z-SCORE");
-							tvnData.setName(x.getKey().getCancerStudy().getName());
+							tvnData.setIsLog(isDataLogd);
+							tvnData.setName(geneticProfileData.getKey().getCancerStudy().getName());
 							TypeOfCancer typeOfCancer = cancerTypeService
-									.getCancerType(x.getKey().getCancerStudy().getTypeOfCancerId());
+									.getCancerType(geneticProfileData.getKey().getCancerStudy().getTypeOfCancerId());
 							tvnData.setColor(typeOfCancer.getDedicatedColor());
-							tvnData.setStudyId(x.getKey().getCancerStudy().getCancerStudyIdentifier());
+							tvnData.setStudyId(geneticProfileData.getKey().getCancerStudy().getCancerStudyIdentifier());
 							List<TumorVsNormalsDataSampleDataObject> tvnSampleDataObjects = new ArrayList<>();
 							for (GeneticData geneticData : values_temp) {
-								Double value = Double.parseDouble(geneticData.getValue()) + 1d;
-								tvnSampleDataObjects.add(new TumorVsNormalsDataSampleDataObject(geneticData.getSampleId(), value));
+								Double value = Double.parseDouble(geneticData.getValue());
+								tvnSampleDataObjects
+										.add(new TumorVsNormalsDataSampleDataObject(geneticData.getSampleId(), value));
 							}
 							tvnData.setData(tvnSampleDataObjects);
 						} catch (Exception e) {
@@ -149,7 +152,7 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 			normalsData.sort((TumorVsNormalsData t1, TumorVsNormalsData t2) -> t1.getName().compareTo(t2.getName()));
 			tumorData.sort((TumorVsNormalsData t1, TumorVsNormalsData t2) -> t1.getName().compareTo(t2.getName()));
 
-			Boolean isTumorDataZScored = tumorData.stream().filter(x -> x.getIsZScore()).count() > 0;
+			Boolean isTumorDataloged = tumorData.stream().filter(x -> x.getIsLog()).count() > 0;
 
 			// these values would be used if the number of studies is 1
 			// and/or if we need to calculate z-score values
@@ -167,10 +170,10 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 
 			// add tumor data to final object
 			result.addAll(tumorData.stream().map(x -> {
-				if (!isTumorDataZScored && inputzScoreFlag) {
+				if (inputzScoreFlag) {
 					x.setData(x.getData().stream().map(y -> {
-						Double value = y.getValue();
-						y.setValue(((Math.log(value) / Math.log(2)) - meanVal) / deviationVal);
+						Double value = isTumorDataloged ? y.getValue() : (Math.log(y.getValue()) / Math.log(2));
+						y.setValue((value - meanVal) / deviationVal);
 						return y;
 					}).collect(Collectors.toList()));
 				}
@@ -184,10 +187,13 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 				if (tumorData.size() == 1) {
 					x.setpValue(calculatePvalues(tumorValues, x.getSamplesData()));
 				}
-				if (isTumorDataZScored || inputzScoreFlag) {
+				if (isTumorDataloged || inputzScoreFlag) {
 					x.setData(x.getData().stream().map(y -> {
-						Double value = y.getValue();
-						y.setValue(((Math.log(value) / Math.log(2)) - meanVal) / deviationVal);
+						// if tumor data is already in log values
+						Double value = isTumorDataloged || inputzScoreFlag ? (Math.log(y.getValue()) / Math.log(2)) : y.getValue();
+						// if input z_score flag is true
+						Double value2 = inputzScoreFlag ? ((value - meanVal) / deviationVal) : value;
+						y.setValue(value2);
 						return y;
 					}).collect(Collectors.toList()));
 				}
@@ -205,13 +211,11 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 	 * @param normalizedTumorVal
 	 * @return
 	 */
-	private String calculatePvalues(double[] normalizedTumorVal, double[] normalizedNormalVal) {
+	private Double calculatePvalues(double[] normalizedTumorVal, double[] normalizedNormalVal) {
 		String pValues = "-";
 		TTest test = new TTest();
 		NumberFormat formatter = new DecimalFormat("0.##E00");
-		Double output = test.tTest(normalizedTumorVal, normalizedNormalVal);
-		pValues = String.valueOf(formatter.format(output));
-		return pValues;
+		return test.tTest(normalizedTumorVal, normalizedNormalVal);
 	}
 
 }

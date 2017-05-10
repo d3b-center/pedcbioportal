@@ -7,26 +7,27 @@ window.TVNDataManager = (function($, _) {
     $.each(_genetic_profiles, function(index, _genetic_profile) {
       if (_genetic_profile['normals_tissue_reference_id'] !== undefined && _genetic_profile['normals_tissue_reference_id'] !== null) {
         if (_profilesDataObj[_genetic_profile['normals_tissue_reference_id']] === undefined) {
+          var hasLogOption = true;
+          if (_genetic_profile['id'].endsWith('mrna_U133')) {
+            hasLogOption = false;
+          }
           _profilesDataObj[_genetic_profile['normals_tissue_reference_id']] = {
-            zscore_option: false,
-            log_option: false,
+            zscore_option: true,
+            log_option: hasLogOption,
             profiles: []
           };
         }
-        if (_genetic_profile['id'].indexOf('rna_seq')) {
-          _profilesDataObj[_genetic_profile['normals_tissue_reference_id']]['zscore_option'] = true;
-          _profilesDataObj[_genetic_profile['normals_tissue_reference_id']]['log_option'] = true;
-        }
+
         _profilesDataObj[_genetic_profile['normals_tissue_reference_id']]['profiles'].push(_genetic_profile);
       }
     });
 
-    var getPlotData = function(self, selected_profiles,gene_id,reference_normals_id,zscore_flag){
+    var getPlotData = function(self, selected_profiles, gene_id, reference_normals_id, zscore_flag) {
       var def = new $.Deferred();
       var _data = {};
       _data[gene_id] = [];
       var _request = [];
-      $.each(selected_profiles,function(key,genetic_profile){
+      $.each(selected_profiles, function(key, genetic_profile) {
         _request.push({
           geneticProfileId: genetic_profile['id'],
           sampleIds: self.studyCasesMap[genetic_profile['study_id']]
@@ -34,7 +35,7 @@ window.TVNDataManager = (function($, _) {
 
       });
       $.ajax({
-        url: window.cbioURL+'api/gene-symbol/'+gene_id+'/normals-reference/'+reference_normals_id+'/data/'+zscore_flag,
+        url: window.cbioURL + 'api/gene-symbol/' + gene_id + '/normals-reference/' + reference_normals_id + '/data/' + zscore_flag,
         data: JSON.stringify(_request),
         method: 'POST',
         contentType: "application/json; charset=utf-8",
@@ -56,8 +57,8 @@ window.TVNDataManager = (function($, _) {
       getFilterOptionsData: function() {
         return _profilesDataObj
       },
-      getPlotData: function(selected_profiles,gene_id,reference_normals_id,zscore_flag) {
-        return getPlotData(this, selected_profiles,gene_id,reference_normals_id,zscore_flag);
+      getPlotData: function(selected_profiles, gene_id, reference_normals_id, zscore_flag) {
+        return getPlotData(this, selected_profiles, gene_id, reference_normals_id, zscore_flag);
       }
     }
 
@@ -144,7 +145,8 @@ var TVN = (function(_, $) {
             selectedGene: '',
             selectedNormals: '',
             isloading: true,
-            hasData:true
+            hasData:true,
+            disabled:false
 
           }, watch: {
             genes: function(newVal) {
@@ -164,10 +166,16 @@ var TVN = (function(_, $) {
             },
             selectedNormals: function(newVal) {
               this.showzScoreOption = this.normals[newVal]['zscore_option'];
+              if(!this.normals[newVal]['log_option']){
+                this.disabled = true;
+                this.logValueOption = true;
+              }
+              //this.showzScoreOption = this.normals[newVal]['log_option'];
             },
             zScoreOption: function(newVal) {
               if(!this.isloading && this.showzScoreOption){
-                this.logValueOption = false;
+                if(!this.disabled)
+                  this.logValueOption = false;
                 this.loadData();
               }
             },
@@ -195,7 +203,10 @@ var TVN = (function(_, $) {
             },
             resetOptions: function() {
               this.zScoreOption = false;
-              this.logValueOption = false;
+              if(!this.disabled){
+                this.logValueOption = false;
+              }
+
               this.thresholdValue = 0.01;
             },
             loadData: function(){
@@ -423,11 +434,13 @@ var tvnBoxPlot = (function() {
         _scatterSeriesData.isCancer = _boxSeriesData.isCancer;
         xCount++;
         if (!_hasMultipleTumorDatasets) {
-          pValues.push(val['pValue'] !== undefined ? val['pValue'] : "");
-          if(!_boxSeriesData.isCancer){
-            _boxSeriesData.data[0].pValue = parseFloat(val['pValue']);
+          var temp = val['pValue'] !== undefined ? val['pValue'].toExponential(1) : "";
+          pValues.push(temp);
 
-            if (parseFloat(val['pValue']) <= parseFloat(thresholdValue)) {
+          if(!_boxSeriesData.isCancer){
+            _boxSeriesData.data[0].pValue = temp;
+
+            if (temp <= thresholdValue) {
               _boxSeriesData.data[0].color = "#F80000";
             }
           }
@@ -979,7 +992,7 @@ var boxPlot = (function() {
       if (val.type == 'boxplot') {
         if (!val.userOptions.isCancer) {
           var temp = val.data[0].options;
-          if (parseFloat(temp.pValue) <= parseFloat(thresholdValue)) {
+          if (temp.pValue <= thresholdValue) {
             temp.color = "#F80000";
           } else {
             temp.color = '#AAAAAA';
