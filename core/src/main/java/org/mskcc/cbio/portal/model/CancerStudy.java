@@ -66,6 +66,7 @@ public class CancerStudy {
     private Set<String> groups;
     private String shortName;
     private Date importDate;
+    private Boolean isAdultCancer = false;
     
 
     /**
@@ -191,8 +192,16 @@ public class CancerStudy {
     public void setCitation(String citation) {
         this.citation = citation;
     }
+    
+	public Boolean getIsAdultCancer() {
+		return isAdultCancer;
+	}
 
-    /**
+	public void setIsAdultCancer(Boolean isAdultCancer) {
+		this.isAdultCancer = isAdultCancer;
+	}
+
+	/**
      * Gets the genetic profiles.
      * @return genetic profiles
      * @throws DaoException database read error

@@ -22,4 +22,5 @@ public class DBStudy implements Serializable {
     public String citation;
     public String groups;
     public Integer internal_id;
+    public Boolean is_adult_cancer;
 }

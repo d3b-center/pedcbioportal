@@ -145,6 +145,34 @@ public final class DaoMutation {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
     }
+    
+    public static int calculateMutationCountByKeyword(int profileId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoMutation.class);
+            pstmt = con.prepareStatement(
+                "INSERT INTO mutation_count_by_keyword " +
+                    "SELECT g2.`GENETIC_PROFILE_ID`, mutation_event.`KEYWORD`, m2.`ENTREZ_GENE_ID`, " +
+                    "IF(mutation_event.`KEYWORD` IS NULL, 0, COUNT(*)) AS KEYWORD_COUNT, (SELECT COUNT(*) " +
+                    "FROM `mutation` AS m1 , `genetic_profile` AS g1 " +
+                    "WHERE m1.`GENETIC_PROFILE_ID` = g1.`GENETIC_PROFILE_ID` " +
+                    "AND g1.`GENETIC_PROFILE_ID`= g2.`GENETIC_PROFILE_ID` AND m1.`ENTREZ_GENE_ID` = m2.`ENTREZ_GENE_ID` " +
+                    "GROUP BY g1.`GENETIC_PROFILE_ID` , m1.`ENTREZ_GENE_ID`) AS GENE_COUNT " +
+                    "FROM `mutation` AS m2 , `genetic_profile` AS g2 , `mutation_event` " +
+                    "WHERE m2.`GENETIC_PROFILE_ID` = g2.`GENETIC_PROFILE_ID` " +
+                    "AND m2.`MUTATION_EVENT_ID` = mutation_event.`MUTATION_EVENT_ID` " +
+                    "AND g2.`GENETIC_PROFILE_ID`=? " +
+                    "GROUP BY g2.`GENETIC_PROFILE_ID` , mutation_event.`KEYWORD` , m2.`ENTREZ_GENE_ID`;");
+            pstmt.setInt(1, profileId);
+            return pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+        }
+    }
 
     /**
      * @deprecated  We believe that this method is no longer called by any part of the codebase, and it will soon be deleted.
@@ -1399,4 +1427,40 @@ public final class DaoMutation {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
     }
+    
+    public static Set<ExtendedMutation.MutationEvent> getAllMutationEventsTemp(long entrezGeneId, String chr, long startPosition, long endPosition, String proteinChange, String tumorSeqAllele, String mutationType)
+    	    throws DaoException
+    	  {
+    	    Connection con = null;
+    	    PreparedStatement pstmt = null;
+    	    ResultSet rs = null;
+    	    Set<ExtendedMutation.MutationEvent> events = new HashSet<ExtendedMutation.MutationEvent>();
+    	    try
+    	    {
+    	      con = JdbcUtil.getDbConnection(DaoMutation.class);
+    	      pstmt = con.prepareStatement("SELECT * FROM mutation_event WHERE ENTREZ_GENE_ID=? and CHR=? and START_POSITION=? and END_POSITION=? and PROTEIN_CHANGE=? and MUTATION_TYPE=?");
+    	      
+    	      pstmt.setLong(1, entrezGeneId);
+    	      pstmt.setString(2, chr);
+    	      pstmt.setLong(3, startPosition);
+    	      pstmt.setLong(4, endPosition);
+    	      pstmt.setString(5, proteinChange);
+    	      pstmt.setString(6, mutationType);
+    	      rs = pstmt.executeQuery();
+    	      while (rs.next())
+    	      {
+    	        ExtendedMutation.MutationEvent event = extractMutationEvent(rs);
+    	        events.add(event);
+    	      }
+    	    }
+    	    catch (SQLException e)
+    	    {
+    	      throw new DaoException(e);
+    	    }
+    	    finally
+    	    {
+    	      JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+    	    }
+    	    return events;
+}
 }

@@ -800,12 +800,12 @@ function addMetaDataToPage() {
     json = window.metaDataJson;
 
     // Construct oncotree
-    var oncotree = {'tissue':{code:'tissue', studies:[], children:[], parent: false, desc_studies_count:0, tissue:''}};
+    var oncotree = {'tissue':{code:'tissue', studies:[], children:[], parent: false, adult_studies_count:0, pediatric_studies_count:0, desc_studies_count:0, tissue:''}};
     var parents = json.parent_type_of_cancers;
     // First add everything to the tree
     for (var tumortype in parents) {
 	if (parents.hasOwnProperty(tumortype)) {
-		oncotree[tumortype] = {code:tumortype, studies:[], children:[], parent: false, desc_studies_count: 0, tissue: false};
+		oncotree[tumortype] = {code:tumortype, studies:[], children:[], parent: false, adult_studies_count:0, pediatric_studies_count:0, desc_studies_count: 0, tissue: false};
 	}
     }
     // Link parents and insert initial tissue info
@@ -848,6 +848,7 @@ function addMetaDataToPage() {
 	} else if (study !== 'all') { // don't re-add 'all'
             try {
                 var code = json.cancer_studies[study].type_of_cancer.toLowerCase();
+                var isAdultCancer = json.cancer_studies[study].is_adult_cancer !== null ? json.cancer_studies[study].is_adult_cancer : true;
 		var lineage = [];
 		var currCode = code;
 		while (currCode !== 'tissue') {
@@ -857,6 +858,11 @@ function addMetaDataToPage() {
                 oncotree[code].studies.push({id:study, lineage:lineage});
                 var node = oncotree[code];
                 while (node) {
+                    if(isAdultCancer){
+                    	node.adult_studies_count += 1;
+                    } else {
+                    	node.pediatric_studies_count += 1;
+                    }
                     node.desc_studies_count += 1;
                     node = node.parent;
                 }
@@ -900,6 +906,8 @@ function addMetaDataToPage() {
     };
     window.jstree_root_id = 'tissue';
     var jstree_data = [];
+    var jstree_data_adult_only = [];
+    var jstree_data_pediatric_only = [];
     var flat_jstree_data = [];
     jstree_data.push({'id': jstree_root_id, parent: '#', text: 'All', state: {opened: true}, li_attr: {name: 'All'}});
     flat_jstree_data.push({'id': jstree_root_id, parent: '#', text: 'All', state: {opened: true}, li_attr: {name: 'All'}});
@@ -934,19 +942,26 @@ function addMetaDataToPage() {
 	}
     }
     
-    while (node_queue.length > 0) {
-	    currNode = node_queue.shift();
-	    if (currNode.desc_studies_count > 0) {
-		var name = splitAndCapitalize(metaDataJson.type_of_cancers[currNode.code] || currNode.code);
-		jstree_data.push({'id':currNode.code, 
-			'parent':((currNode.parent && currNode.parent.code) || '#'), 
-			'text':name,
-			'li_attr':{name:name}
-		});
-		var numSamplesInStudy;
-		var samplePlurality;
-		$.each(currNode.studies, function(ind, elt) {
-			    name = truncateStudyName(splitAndCapitalize(metaDataJson.cancer_studies[elt.id].name));
+    var buildJSTreeData = function(node_queue,type) {
+    	var toReturn = {};
+    	toReturn.jstree_data = [];
+    	toReturn.flat_jstree_data = [];
+    	var node_queue_tmp = [].concat(node_queue);
+    	var toInclude = type !== null ? (type ? 'adult_studies_count' : 'pediatric_studies_count') : 'desc_studies_count';
+        while (node_queue_tmp.length > 0) {
+    	    currNode = node_queue_tmp.shift();
+    	    if (currNode[toInclude] > 0) {
+    		var name = splitAndCapitalize(metaDataJson.type_of_cancers[currNode.code] || currNode.code);
+    		toReturn['jstree_data'].push({'id':currNode.code, 
+    			'parent':((currNode.parent && currNode.parent.code) || '#'), 
+    			'text':name,
+    			'li_attr':{name:name}
+    		});
+    		var numSamplesInStudy;
+    		var samplePlurality;
+    		$.each(currNode.studies, function(ind, elt) {
+    			if ((type === null) || (type === json.cancer_studies[elt.id].is_adult_cancer)) {
+    				name = truncateStudyName(splitAndCapitalize(metaDataJson.cancer_studies[elt.id].name));
 		            numSamplesInStudy = json.cancer_studies[elt.id].num_samples;
 			    if (numSamplesInStudy == 1) {
 			        samplePlurality = 'sample';
@@ -958,19 +973,35 @@ function addMetaDataToPage() {
 				samplePlurality = '';
 				numSamplesInStudy = '';
 			    }
-			    jstree_data.push({'id':elt.id, 
+			    toReturn['jstree_data'].push({'id':elt.id, 
 				    'parent':currNode.code, 
 				    'text':name.concat('<span style="font-weight:normal;font-style:italic;"> '+ numSamplesInStudy + ' ' + samplePlurality + '</span>'),
 				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description}});
 			    
-			    flat_jstree_data.push({'id':elt.id, 
+			    toReturn['flat_jstree_data'].push({'id':elt.id, 
 				    'parent':jstree_root_id,
 				    'text':name,
 				    'li_attr':{name: name, description:metaDataJson.cancer_studies[elt.id].description, search_terms: elt.lineage.join(" ")}});
-		});
-		node_queue = node_queue.concat(currNode.children);
-	    }
+    			}
+			    
+    		});
+    		node_queue_tmp = node_queue_tmp.concat(currNode.children);
+    	    }
+        }
+        return toReturn;
     }
+    
+    var jstree_data_tmp = buildJSTreeData(node_queue,null);
+    jstree_data_adult_only = jstree_data_adult_only.concat(jstree_data);
+    jstree_data_pediatric_only = jstree_data_pediatric_only.concat(jstree_data);
+    jstree_data = jstree_data.concat(jstree_data_tmp['jstree_data']);
+    flat_jstree_data = flat_jstree_data.concat(jstree_data_tmp['flat_jstree_data']);
+    jstree_data_tmp = buildJSTreeData(node_queue,true);
+    jstree_data_adult_only = jstree_data_adult_only.concat(jstree_data_tmp['jstree_data']);
+    jstree_data_tmp = buildJSTreeData(node_queue,false);
+    jstree_data_pediatric_only = jstree_data_pediatric_only.concat(jstree_data_tmp['jstree_data']);
+
+    
     var precomputed_search = {query: '', results: {}};
     var parse_search_query = function(query) {
 		// First eliminate trailing whitespace and reduce every whitespace
@@ -1215,8 +1246,36 @@ initialize_jstree(window.tab_index === "tab_download" ? flat_jstree_data : jstre
 			});
 		}, 400); // wait for a bit with no typing before searching
 	});
+	
+	  $(".filter-select").change(function(){
+		    $("#jstree_search_input").val("");
+		    var isAdultCancer = null;
+		    var tree_data = jstree_is_flat ? flat_jstree_data : jstree_data;
+		    switch($(this).val()) {
+		          case 'adult' :
+		             isAdultCancer = true;
+		             tree_data = jstree_data_adult_only
+		              break;
+		          case 'pediatric' :
+		            isAdultCancer = false;
+		            tree_data = jstree_data_pediatric_only
+		            break;
+		      }     
+		     
+		     var selected_studies = $("#jstree").jstree(true).get_selected_leaves();
+		      $('#jstree').jstree(true).destroy();
+		      initialize_jstree(tree_data);
+		      
+		     $('#jstree').on('ready.jstree', function () {
+		          precomputed_search.query = false; // force re-search
+		          $("#select_single_study").val("all");
+                $("#select_single_study").trigger('change');
+		      });
+	});
+	  
         $('#step_header_first_line_empty_search').click(function() { 
             $("#jstree_search_input").val("");
+            $('#jstree_search_none_found_msg').hide();
             $("#step_header_first_line_empty_search").css("display", "none");
             $("#jstree").fadeTo(100, 0.5, function () {
                 do_jstree_search();

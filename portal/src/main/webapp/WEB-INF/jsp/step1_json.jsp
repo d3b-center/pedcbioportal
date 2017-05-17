@@ -66,6 +66,11 @@
             <label for="jstree_select_cell_line">Cell Line Studies</label>
         </div>-->
     </div>
+    <div>
+        <label class="radio-inline"><input type="radio" name="filter_select" class="filter-select" value="all" checked>All</label>
+        <label class="radio-inline"><input type="radio" name="filter_select" class="filter-select" value="adult">Adult</label>
+        <label class="radio-inline"><input type="radio" name="filter_select" class="filter-select" value="pediatric">Child</label>
+    </div>
     <div id="jstree_search_none_found_msg" style="display:none">
         <h5>No matches found.</h5>
     </div>

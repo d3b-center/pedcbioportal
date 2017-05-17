@@ -6,7 +6,7 @@
   <artifactId>master</artifactId>
   <packaging>pom</packaging>
   <name>Portal Master</name>
-  <version>1.5.1</version>
+  <version>1.6.0</version>
   <description>master maven module</description>
 
   <scm>
@@ -172,14 +172,14 @@
   <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>
     <!-- For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' -->
   <db.test.url>jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB</db.test.url>
-    <db.test.username>cbio_user</db.test.username>
-    <db.test.password>somepassword</db.test.password>
+    <db.test.username>cbioportal_user</db.test.username>
+    <db.test.password>texas1234</db.test.password>
 
     <!--For tomcat instances, the scope to tomcat catalina lib should be provided. this prop is used in portal module.-->
     <tomcat.catalina.scope>provided</tomcat.catalina.scope>
 
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.1.0</db.version>
+    <db.version>2.2.0</db.version>
 
   </properties>
 

@@ -124,7 +124,6 @@ public class GlobalProperties {
     public static final double[] DEFAULT_GENOMIC_OVERVIEW_CNA_CUTOFF = new double[]{0.2,1.5};
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL = "digitalslidearchive.iframe.url";
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_META_URL = "digitalslidearchive.meta.url";
-    public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
 
     public static final String PATIENT_VIEW_MDACC_HEATMAP_META_URL = "mdacc.heatmap.meta.url";
     public static final String PATIENT_VIEW_MDACC_HEATMAP_URL = "mdacc.heatmap.patient.url";
@@ -221,6 +220,7 @@ public class GlobalProperties {
     public static final String DARWIN_RESPONSE_URL = "darwin.response_url";
     public static final String CIS_USER = "cis.user";
     public static final String DISABLED_TABS = "disabled_tabs";
+    public static final String BITLY_USER = "bitly.user";
     public static final String DARWIN_REGEX = "darwin.regex";
     
     public static final String PRIORITY_STUDIES = "priority_studies";
@@ -235,6 +235,14 @@ public class GlobalProperties {
 
     public static final String SHOW_CIVIC = "show.civic";
     public static final String CIVIC_URL = "civic.url";
+    
+    private static String harvestUrl;
+    @Value("${harvest.url:}") // default is empty string
+    public void setHarvestUrl(String property) { harvestUrl = property; }
+    
+    private static String pedcbioUtilsUrl;
+    @Value("${pedcbio_utils.url:}") // default is empty string
+    public void setPedcbioUtilsUrl(String property) { pedcbioUtilsUrl = property; }
 
     private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
@@ -638,15 +646,14 @@ public class GlobalProperties {
 
     public static String getLinkToPatientView(String caseId, String cancerStudyId)
     {
-        return "case.do?" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId
-                 //+ "&"+ org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID + "=" + caseId;
-                 + "&"+ org.mskcc.cbio.portal.servlet.PatientView.SAMPLE_ID + "=" + caseId;
+        return "case.do#/patient?caseId=" + caseId
+                 + "&studyId=" + cancerStudyId;
     }
 
     public static String getLinkToSampleView(String caseId, String cancerStudyId)
     {
-        return "case.do?" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId
-                 + "&"+ org.mskcc.cbio.portal.servlet.PatientView.SAMPLE_ID + "=" + caseId;
+        return "case.do#/patient?sampleId=" + caseId
+                 + "&studyId=" + cancerStudyId;
     }
 
     public static String getLinkToCancerStudyView(String cancerStudyId)
@@ -704,16 +711,6 @@ public class GlobalProperties {
         return url + caseId;
     }
 
-    public static String getTCGAPathReportUrl()
-    {
-        String url = GlobalProperties.getProperty(PATIENT_VIEW_TCGA_PATH_REPORT_URL);
-        if (url == null) {
-            return null;
-        }       
-        
-        return url;
-    }
-
     // function for getting the custom tabs for the header
     public static String[] getCustomHeaderTabs(){
         String customPagesString = GlobalProperties.getProperty(SKIN_CUSTOM_HEADER_TABS);
@@ -727,6 +724,15 @@ public class GlobalProperties {
     public static String getSessionServiceUrl()
     {
         return sessionServiceURL;
+    }
+    public static String getHarvestUrl()
+    {
+        return harvestUrl;
+    }
+    
+    public static String getPedcbioUtilsUrl()
+    {
+        return pedcbioUtilsUrl;
     }
  
     public static String getOncoKBApiUrl()
@@ -779,7 +785,7 @@ public class GlobalProperties {
         if(!hotspot.isEmpty()) {
             return Boolean.parseBoolean(hotspot);
         }else{
-            return false;
+            return true;
         }
     }
 
@@ -807,6 +813,15 @@ public class GlobalProperties {
             return false;
         }
         return Boolean.parseBoolean(recacheStudyAfterUpdate);
+    }
+    
+    public static String getBitlyUser() {
+        String bitlyUser = properties.getProperty(BITLY_USER);
+        if (bitlyUser == null || bitlyUser.trim().equals(""))
+        {
+            return null;
+        }
+        return bitlyUser;
     }
     
     public static String getDbVersion() {
