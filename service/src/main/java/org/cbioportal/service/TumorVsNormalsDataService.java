@@ -9,7 +9,7 @@ import org.cbioportal.service.exception.GeneticProfileNotFoundException;
 
 public interface TumorVsNormalsDataService {
 
-	List<TumorVsNormalsData> getTVNData(Map<String, List<String>> geneticProfileSamplesMap,
+	List<TumorVsNormalsData> getTVNData(List<String> geneticProfileStableIds, Map<String, List<String>> geneticProfileSamplesMap,
 			String normalsReferenceId, String geneSymbols, Boolean zScore, Boolean clacpValues)
 					throws GeneticProfileNotFoundException, GeneNotFoundException;
 }

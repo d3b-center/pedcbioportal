@@ -40,7 +40,7 @@
                         <div v-if="showzScoreOption && !zScoreOption">
                             <h5>Apply Log Scale</h5>
                             <input type="checkbox" id="log_value_option"
-                                   v-model="logValueOption">
+                                   v-model="logValueOption" :disabled="disabled">
                         </div>
 
                         <div v-if="showThresholdValue">

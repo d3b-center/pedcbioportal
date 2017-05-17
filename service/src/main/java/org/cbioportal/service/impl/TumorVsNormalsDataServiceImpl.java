@@ -56,8 +56,8 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 	}
 
 	@Override
-	@PreAuthorize("hasPermission(#geneticProfileId, 'List<GeneticProfileId>', 'read')")
-	public List<TumorVsNormalsData> getTVNData(Map<String, List<String>> geneticProfileSamplesMap,
+	@PreAuthorize("hasPermission(#geneticProfileStableIds, 'List<GeneticProfileId>', 'read')")
+	public List<TumorVsNormalsData> getTVNData(List<String> geneticProfileStableIds,Map<String, List<String>> geneticProfileSamplesMap,
 			String normalsReferenceId, String geneSymbol, Boolean inputzScoreFlag, Boolean clacpValues)
 					throws GeneticProfileNotFoundException, GeneNotFoundException {
 		Gene gene = geneService.getGene(geneSymbol);

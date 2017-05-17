@@ -53,7 +53,7 @@ public class TumorVsNormalsDataController {
 			geneticProfileSamplesMap.put(tvnDataIdentifier.getGeneticProfileId(), tvnDataIdentifier.getSampleIds());
 		}
 		List<TumorVsNormalsData> response = new ArrayList<>();
-		response = tumorVsNormalsDataService.getTVNData(geneticProfileSamplesMap, normalsReferenceId, geneSymbol, zScore,
+		response = tumorVsNormalsDataService.getTVNData(new ArrayList<String>(geneticProfileSamplesMap.keySet()),geneticProfileSamplesMap, normalsReferenceId, geneSymbol, zScore,
 				calculatepValues);
 
 		return new ResponseEntity<>(response, HttpStatus.OK);
