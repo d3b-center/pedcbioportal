@@ -112,6 +112,11 @@
     *   [Desmoplastic Melanoma (Broad Institute, Nat Genet 2015)](http://www.cbioportal.org/study?id=desm_broad_2015)
 *   All mutation data mapped to [UniProt canonical isoforms](http://www.uniprot.org/help/canonical_and_isoforms)
 
+# December 29, 2015
+*   **New features**:
+    *   Tumor vs Normals visalization in the cancer study(only studies mapped to normal dataset)
+    *   Tumor vs Normals visalization in cross-cancer study view
+    
 # December 23, 2015
 *   **New features**:
     *   Visualization of RNA-seq expression levels across TCGA studies (cross-cancer queries)<br/>
