@@ -12,7 +12,7 @@ Check out our [tutorial paper](http://www.ncbi.nlm.nih.gov/pubmed/23550210) to g
 
 ### What data types are in the portal?
 
-The portal currently stores DNA copy-number data (putative, discrete values per gene, e.g. "deeply deleted" or "amplified", as well as log2 levels), mRNA and microRNA expression data, non-synonymous mutations, protein-level and phosphoprotein level (RPPA) data, DNA methylation data, and limited de-identified clinical data. For a complete breakdown of available data types per cancer study go to the [Data Sets Page](http://www.cbioportal.org/data_sets.jsp).
+The portal currently stores DNA copy-number data (putative, discrete values per gene, e.g. "deeply deleted" or "amplified", as well as log2 levels), mRNA and microRNA expression data, non-synonymous mutations, protein-level and phosphoprotein level (RPPA) data, DNA methylation data, and limited de-identified clinical data. For a complete breakdown of available data types per cancer study go to the [Data Sets Page](http://pedcbioportal.org/data_sets.jsp).
 
 ### What is the process of data curation?
 
@@ -20,11 +20,11 @@ The TCGA provisional datasets are directly from [TCGA data center](https://tcga-
 
 We are also actively curating datasets from literature. Studies from literature were curated from the data published with the papers. We sometimes reach out to the investigators to additional data such as clinical attributes. All the mutation data (VCF or MAF) were processed through an internal pipeline to annotate the variant effects in a consistent way across studies.
 
-Please [contact us](mailto:cbioportal@googlegroups.com) to suggest public datasets to curate. 
+Please [contact us](mailto:support@d3b.center) to suggest public datasets to curate. 
 
 ### How do I get updates on new portal developments and new data sets?
 
-Please subscribe to our low-traffic [news mailing list](http://groups.google.com/group/cbioportal-news) or follow us on [Twitter](https://twitter.com/cbioportal).
+Please subscribe to our low-traffic [news mailing list](https://groups.google.com/d/forum/pediatric-cbioportal-news) or follow us on [Twitter](https://twitter.com/pedcbioportal).
 
 ### Does the portal work on all browsers and operating systems?
 
@@ -49,11 +49,11 @@ The cBio portal is an exploratory analysis tool for exploring large-scale cancer
 
 ### Does the cBioPortal provide a Web Service API?  R interface?  MATLAB interface?
 
-Yes, the cBioPortal provides a [Web API](http://www.cbioportal.org/web_api.jsp), and [R/MATLAB interfaces](http://www.cbioportal.org/cgds_r.jsp).
+Yes, the cBioPortal provides a [Web API](http://pedcbioportal.org/web_api.jsp), and [R/MATLAB interfaces](http://pedcbioportal.org/cgds_r.jsp).
 
 ### Can I create a local instance of cBioPortal to host my own data?
 
-Yes, the cBioPortal is open-source, and available on [GitHub](https://github.com/cBioPortal/cbioportal).  Our [Wiki pages](https://github.com/cBioPortal/cbioportal/wiki) provide complete download and installation instructions.
+Yes, the cBioPortal is open-source, and available on [GitHub](https://github.com/d3b-center/pedcbioportal).  Our [Wiki pages](https://d3b-center.github.io/pedcbioportal/) provide complete download and installation instructions.
 
 ### I'd like to contribute code to the cBioPortal.  How do I get started?
 
@@ -71,7 +71,7 @@ We store mutation data for published cancer studies. We do not, however store mu
 
 ### Does the portal contain cancer study X?
 
-Check out the [Data Sets Page](http://www.cbioportal.org/data_sets.jsp) for the complete set of cancer studies currently stored in the portal. If you do not see your specific cancer study of interest, please contact us directly, and we will let you know if it's in the queue.
+Check out the [Data Sets Page](http://pedcbioportal.org/data_sets.jsp) for the complete set of cancer studies currently stored in the portal. If you do not see your specific cancer study of interest, please contact us directly, and we will let you know if it's in the queue.
 
 ### What kind of clinical data is stored in the portal?
 
@@ -135,9 +135,9 @@ The order of genes in the OncoPrint is determined by the order entered into the 
 
 ### Can I visualize my own data within an OncoPrint?
 
-Yes, check out the OncoPrinter tool on our [tools page](http://www.cbioportal.org/tools.jsp).
+Yes, check out the OncoPrinter tool on our [tools page](http://pedcbioportal.org/tools.jsp).
 
 ## What if I have other questions or comments?
 
-Please contact us at [cbioportal@googlegroups.com](mailto:cbioportal@googlegroups.com). Previous discussions about cBioPortal are available on the [user discussion mailing list](http://groups.google.com/group/cbioportal).
+Please contact us at [support@d3b.center](mailto:support@d3b.center). Previous discussions about PedcBioPortal are available on the [user discussion mailing list](https://groups.google.com/d/forum/pediatric-cbioportal).
 

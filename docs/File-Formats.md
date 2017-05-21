@@ -39,6 +39,7 @@ This file contains metadata about the cancer study. The file contains the follow
 7. **short_name**:  A short name used for display used on various web pages within the cBioPortal, e.g., "BRCA (Jones)".
 8. **groups (optional)**: When using an authenticating cBioPortal, lists the user-groups that are allowed access to this study. Multiple groups are separated with a semicolon ";". The study will be invisible to users not in _at least one_ of the listed groups, as if it wasn't loaded at all. e.g., "PUBLIC;GDAC;SU2C-PI3K". see [User-Authorization](User-Authorization.md) for more information on groups
 9. **add_global_case_list (optional)**: set to 'true' if you would like the "All samples" case list to be generated automatically for you. See also [Case lists](#case-lists).
+10. **is_adult_cancer(optional)**: by default it is set to 'true'. If it is pediatric study the set this to 'false'.
 
 ##### Example  
 An example meta_study.txt file would be:
@@ -385,6 +386,7 @@ The expression metadata file should contain the following fields:
 7. **profile_description**: A description of the expression data, e.g., "Expression levels (Agilent microarray).".
 8. **data_filename**: your datafile
 9. **gene_panel**: optional gene panel stable id
+10. **normals_tissue_reference_id(optional)**: A normal dataset to which this profile data can be compared to. For now is should be one in ['gtex','hgu133plus2'].
 
 #### Supported stable_id values for MRNA_EXPRESSION
 For historical reasons, cBioPortal expects the `stable_id` to be one of those listed in the following static set.
