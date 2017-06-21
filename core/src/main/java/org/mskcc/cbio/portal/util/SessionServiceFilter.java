@@ -32,14 +32,23 @@
 
 package org.mskcc.cbio.portal.util;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.StringUtils;
-
-import javax.servlet.*;
-import javax.servlet.http.*;
-
-import java.io.IOException;
 
 /**
  *
@@ -96,5 +105,27 @@ public class SessionServiceFilter <W extends HttpServletRequestWrapper> implemen
         } else {
             aChain.doFilter(aRequest, aResponse);
         }
-    }
+		Map<String, Object> requestParams = new HashMap<>();
+
+		String action = request.getParameter("Action");
+
+		String cancerStudyIdListString = StringUtils.defaultIfEmpty(
+				request.getParameter("cancer_study_list"),
+				StringUtils.defaultString(request.getParameter("cancer_study_id")));
+		
+		requestParams.put("cancer_study_ids", cancerStudyIdListString.split(","));
+		
+		requestParams.put("gene_list", StringUtils.defaultString(request.getParameter("gene_list"))
+												  .split("( )|(\\n)|(\\t)", -1));
+
+		requestParams.put("case_set_id", request.getParameter("case_set_id"));
+		
+		requestParams.put("case_ids", StringUtils.defaultString(request.getParameter("case_ids"))
+												 .split("( )|(\\n)|(\\t)", -1));
+		
+		if (action != null && action.equals("Submit")) {
+			EventSourcingUtils.logEvent("query", requestParams);
+		}
+
+	}
 }
