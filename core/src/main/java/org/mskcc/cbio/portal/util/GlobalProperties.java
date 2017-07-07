@@ -235,6 +235,16 @@ public class GlobalProperties {
 
     public static final String SHOW_CIVIC = "show.civic";
     public static final String CIVIC_URL = "civic.url";
+    public static final String CAVATICA_EVENTS_URL = "cavatica.events.url";
+    
+    private static String cavaticaEventsURL;
+    @Value("${cavatica.events.url:}") // default is empty string
+    public void setCavaticaEventsURL(String property) { cavaticaEventsURL = property; }
+    
+    private static String cavaticaEventsCredentials;
+    @Value("${cavatica.events.credentials:}") // default is empty string
+    public void setCavaticaEventsCredentials(String property) { cavaticaEventsCredentials = property; }
+    
     
     private static String harvestUrl;
     @Value("${harvest.url:}") // default is empty string
@@ -728,6 +738,15 @@ public class GlobalProperties {
     public static String getHarvestUrl()
     {
         return harvestUrl;
+    }
+    public static String getCavaticaEventsURL()
+    {
+        return cavaticaEventsURL;
+    }
+    
+    public static String getCavaticaEventsCredentials()
+    {
+        return cavaticaEventsCredentials;
     }
     
     public static String getPedcbioUtilsUrl()

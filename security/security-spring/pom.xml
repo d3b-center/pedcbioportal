@@ -5,7 +5,7 @@
     <parent>
         <artifactId>security</artifactId>
         <groupId>org.mskcc.cbio</groupId>
-        <version>1.6.0</version>
+        <version>1.6.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -97,6 +97,28 @@
         <version>3.0.1</version>
         <scope>provided</scope>
       </dependency>
+      
+        <!-- Spring AOP + AspectJ -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aop</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.aspectj</groupId>
+		    <artifactId>aspectjrt</artifactId>
+		    <version>1.8.10</version>
+		</dependency>
+		
+		
+		<dependency>
+		    <groupId>org.aspectj</groupId>
+		    <artifactId>aspectjweaver</artifactId>
+		    <version>1.8.10</version>
+		</dependency>
+
+	
     </dependencies>
 
 </project>

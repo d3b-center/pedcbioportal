@@ -32,14 +32,23 @@
 
 package org.mskcc.cbio.portal.util;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.StringUtils;
-
-import javax.servlet.*;
-import javax.servlet.http.*;
-
-import java.io.IOException;
 
 /**
  *
@@ -96,5 +105,6 @@ public class SessionServiceFilter <W extends HttpServletRequestWrapper> implemen
         } else {
             aChain.doFilter(aRequest, aResponse);
         }
-    }
+
+	}
 }

@@ -49,7 +49,7 @@ The cBio portal is an exploratory analysis tool for exploring large-scale cancer
 
 ### Does the cBioPortal provide a Web Service API?  R interface?  MATLAB interface?
 
-Yes, the cBioPortal provides a [Web API](http://pedcbioportal.org/web_api.jsp), and [R/MATLAB interfaces](http://pedcbioportal.org/cgds_r.jsp).
+Yes, the cBioPortal provides a [Web API](http://www.cbioportal.org/web_api.jsp), and [R/MATLAB interfaces](http://www.cbioportal.org/cgds_r.jsp).
 
 ### Can I create a local instance of cBioPortal to host my own data?
 

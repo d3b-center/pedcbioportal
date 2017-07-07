@@ -65,8 +65,8 @@ var StudyViewClinicalTabController = (function() {
                 attr['PATIENT_ID'] = {
                     attr_id: 'PATIENT_ID',
                     datatype: 'STRING',
-                    description: 'Patient ID',
-                    display_name: 'Patient ID'
+                    description: 'Subject ID',
+                    display_name: 'Subject ID'
                 };
 
                 attr.study_id = {
