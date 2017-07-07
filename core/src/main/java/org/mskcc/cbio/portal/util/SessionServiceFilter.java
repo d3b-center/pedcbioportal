@@ -105,27 +105,6 @@ public class SessionServiceFilter <W extends HttpServletRequestWrapper> implemen
         } else {
             aChain.doFilter(aRequest, aResponse);
         }
-		Map<String, Object> requestParams = new HashMap<>();
-
-		String action = request.getParameter("Action");
-
-		String cancerStudyIdListString = StringUtils.defaultIfEmpty(
-				request.getParameter("cancer_study_list"),
-				StringUtils.defaultString(request.getParameter("cancer_study_id")));
-		
-		requestParams.put("cancer_study_ids", cancerStudyIdListString.split(","));
-		
-		requestParams.put("gene_list", StringUtils.defaultString(request.getParameter("gene_list"))
-												  .split("( )|(\\n)|(\\t)", -1));
-
-		requestParams.put("case_set_id", request.getParameter("case_set_id"));
-		
-		requestParams.put("case_ids", StringUtils.defaultString(request.getParameter("case_ids"))
-												 .split("( )|(\\n)|(\\t)", -1));
-		
-		if (action != null && action.equals("Submit")) {
-			EventSourcingUtils.logEvent("query", requestParams);
-		}
 
 	}
 }
