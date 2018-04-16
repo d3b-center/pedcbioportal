@@ -300,19 +300,13 @@ window.loadReactApp({ defaultRoute: 'results' });
         <%@ include file="networks.jsp" %>
             <% } %>
 
-<<<<<<< 717ef61b9914bf5054a5b2b01f29b11d068df45b
             <% if (showCoexpTab) { %>
         <%@ include file="co_expression.jsp" %>
             <% } %>
-=======
-        <% if (has_mrna || has_copy_no || showMutTab) { %>
-            <%@ include file="enrichments_tab.jsp" %>
-        <% } %>
-        
+
         <% if (showTvnTab) { %>
             <%@ include file="tvn_tab.jsp" %>
         <% } %>
->>>>>>> Changes wrt PedCbioPortal
 
             <% if ((has_mrna || has_copy_no || showMutTab) && !isVirtualStudy) { %>
         <%@ include file="enrichments_tab.jsp" %>

@@ -99,6 +99,7 @@
         $("#tabs").bind("tabsactivate", function(event, ui) {
             if (ui.newTab.text().trim().toLowerCase() === "tumor vs normals") {
                 if (tvn_tab_init === false) {
+                	fireQuerySession();
                 	window.cbioportal_client.getGeneticProfiles({'study_id': [window.QuerySession.getCancerStudyIds()[0]]})
                 .then(function(_genetic_profiles) {
                     window.tvn_datamanager = new

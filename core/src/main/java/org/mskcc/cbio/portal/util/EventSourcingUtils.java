@@ -9,7 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class EventSourcingUtils {
@@ -18,7 +18,7 @@ public class EventSourcingUtils {
 			String cavaticaEventsURL = GlobalProperties.getCavaticaEventsURL();
 			if (!StringUtils.isBlank(cavaticaEventsURL)) {
 				ObjectMapper mapper = new ObjectMapper();
-				mapper.setSerializationInclusion(Include.NON_NULL);
+				mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
 				String plainCreds = GlobalProperties.getCavaticaEventsCredentials();
 				byte[] base64CredsBytes = Base64.encodeBase64(plainCreds.getBytes());

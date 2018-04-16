@@ -107,7 +107,7 @@
                 <artifactItem>
                   <groupId>com.github.d3b-center</groupId>
                   <artifactId>cbioportal-frontend</artifactId>
-                  <version>a1d846908e06fd74fdaa345fe9a2937cd3f9be6c</version>
+                  <version>release-1.13.0-SNAPSHOT</version>
                   <type>jar</type>
                   <outputDirectory>.</outputDirectory>
                   <excludes>*index*</excludes>

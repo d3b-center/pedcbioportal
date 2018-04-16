@@ -478,6 +478,7 @@ public class QueryBuilder extends HttpServlet {
         Boolean hasMethylation = false;
         Boolean hasCopyNo = false;
         Boolean hasSurvival = false;
+        boolean showTvnTab = false;
         String decodedGeneList = URLDecoder.decode(geneList, "UTF-8");
         String singleStudyId = (String) request.getAttribute(CANCER_STUDY_ID);
         if (inputStudySampleMap.keySet().size() == 1 && inputStudySampleMap.containsKey(singleStudyId)) { // single study
@@ -558,6 +559,12 @@ public class QueryBuilder extends HttpServlet {
                 if (profileId != null && profileId.length() != 0)
                     geneticProfileMap.put(profileId, GeneticProfileUtil.getProfile(profileId, geneticProfileList));
             }
+            for(GeneticProfile  geneticProfile : geneticProfileList){
+                if(geneticProfile.getNormalsTissueReferenceId() != null) {
+                    showTvnTab = true;
+                    break;
+                }
+            }
             if (inputStudySampleMap.size()>1 || !inputStudySampleMap.containsKey(singleStudyId)) {
                 HashMap<String, GeneticProfile> defaultGeneticProfileSet = null;
                 CategorizedGeneticProfileSet categorizedGeneticProfileSet = new CategorizedGeneticProfileSet(
@@ -595,6 +602,13 @@ public class QueryBuilder extends HttpServlet {
         request.setAttribute("hasMethylation", hasMethylation);
         request.setAttribute("hasCopyNo", hasCopyNo);
         request.setAttribute("hasSurvival", hasSurvival);
+        
+        if(inputStudySampleMap.keySet().size()>1) {
+        	 request.setAttribute("showTvnTab", false);
+        }else {
+        	 request.setAttribute("showTvnTab", showTvnTab);
+        }
+       
 
         ObjectMapper mapper = new ObjectMapper();
         String studySampleMapString = mapper.writeValueAsString(studySampleMap);

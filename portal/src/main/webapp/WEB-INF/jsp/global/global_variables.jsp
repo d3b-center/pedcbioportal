@@ -70,18 +70,11 @@
     Boolean has_methylation = (Boolean) request.getAttribute("hasMethylation");
     Boolean has_copy_no = (Boolean) request.getAttribute("hasCopyNo");
     Boolean has_survival = (Boolean) request.getAttribute("hasSurvival");
+    Boolean showTvnTab = (Boolean) request.getAttribute("showTvnTab");
     boolean includeNetworks = GlobalProperties.includeNetworks();
     boolean computeLogOddsRatio = true;
     Boolean mutationDetailLimitReached = (Boolean)request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);
     boolean showCoexpTab = false;
-    ArrayList<GeneticProfile> profileList = (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL);
-    boolean showTvnTab = false;
-    for(GeneticProfile  geneticProfile : profileList){
-        if(geneticProfile.getNormalsTissueReferenceId() != null) {
-            showTvnTab = true;
-            break;
-        }
-    }
 
     //are we using session service for bookmarking?
     boolean useSessionServiceBookmark = !StringUtils.isBlank(GlobalProperties.getSessionServiceUrl());

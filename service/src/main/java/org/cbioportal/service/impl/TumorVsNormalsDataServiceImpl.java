@@ -15,18 +15,18 @@ import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 import org.apache.commons.math3.stat.inference.TTest;
 import org.cbioportal.model.Gene;
-import org.cbioportal.model.GeneGeneticData;
-import org.cbioportal.model.GeneticProfile;
+import org.cbioportal.model.MolecularProfile;
 import org.cbioportal.model.TumorVsNormalsData;
 import org.cbioportal.model.TumorVsNormalsDataSampleDataObject;
 import org.cbioportal.model.TypeOfCancer;
+import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.service.CancerTypeService;
 import org.cbioportal.service.GeneService;
-import org.cbioportal.service.GeneticDataService;
-import org.cbioportal.service.GeneticProfileService;
+import org.cbioportal.service.MolecularDataService;
+import org.cbioportal.service.MolecularProfileService;
 import org.cbioportal.service.TumorVsNormalsDataService;
 import org.cbioportal.service.exception.GeneNotFoundException;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,10 +43,10 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 	private GeneService geneService;
 
 	@Autowired
-	private GeneticDataService geneticDataService;
+	private MolecularDataService molecularDataService;
 
 	@Autowired
-	private GeneticProfileService geneticProfileService;
+	private MolecularProfileService molecularProfileService;
 
 	private String pedcbioUtilsUrl;
 
@@ -59,7 +59,7 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 	@PreAuthorize("hasPermission(#geneticProfileStableIds, 'List<GeneticProfileId>', 'read')")
 	public List<TumorVsNormalsData> getTVNData(List<String> geneticProfileStableIds,Map<String, List<String>> geneticProfileSamplesMap,
 			String normalsReferenceId, String geneSymbol, Boolean inputzScoreFlag, Boolean clacpValues)
-					throws GeneticProfileNotFoundException, GeneNotFoundException {
+					throws MolecularProfileNotFoundException, GeneNotFoundException {
 		Gene gene = geneService.getGene(geneSymbol);
 
 		List<TumorVsNormalsData> result = new ArrayList<>();
@@ -103,10 +103,10 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 					}).collect(Collectors.toList());
 
 			// get tumor data
-			Map<GeneticProfile, List<String>> tumorInputData = geneticProfileSamplesMap.entrySet().stream()
+			Map<MolecularProfile, List<String>> tumorInputData = geneticProfileSamplesMap.entrySet().stream()
 					.collect(Collectors.toMap(e -> {
 						try {
-							return geneticProfileService.getGeneticProfile(e.getKey());
+							return molecularProfileService.getMolecularProfile(e.getKey());
 						} catch (Exception e1) {
 							// TODO : updated error handling
 							e1.printStackTrace();
@@ -120,9 +120,9 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 							&& geneticProfileData.getKey().getNormalsTissueReferenceId().equals(normalsReferenceId)))
 					.map(geneticProfileData -> {
 						TumorVsNormalsData tvnData = new TumorVsNormalsData();
-						List<GeneGeneticData> values_temp;
+						List<GeneMolecularData> values_temp;
 						try {
-							values_temp = geneticDataService.fetchGeneticData(geneticProfileData.getKey().getStableId(),
+							values_temp = molecularDataService.fetchMolecularData(geneticProfileData.getKey().getStableId(),
 									geneticProfileData.getValue(),
 									new ArrayList<>(Arrays.asList(gene.getEntrezGeneId())), "SUMMARY");
 							Boolean isDataLogd = geneticProfileData.getKey().getStableId().endsWith("mrna_U133");
@@ -135,7 +135,7 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 							tvnData.setColor(typeOfCancer.getDedicatedColor());
 							tvnData.setStudyId(geneticProfileData.getKey().getCancerStudy().getCancerStudyIdentifier());
 							List<TumorVsNormalsDataSampleDataObject> tvnSampleDataObjects = new ArrayList<>();
-							for (GeneGeneticData geneticData : values_temp) {
+							for (GeneMolecularData geneticData : values_temp) {
 								Double value = Double.parseDouble(geneticData.getValue());
 								tvnSampleDataObjects
 										.add(new TumorVsNormalsDataSampleDataObject(geneticData.getSampleId(), value));

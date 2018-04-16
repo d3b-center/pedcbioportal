@@ -8,7 +8,7 @@ import java.util.Map;
 import org.cbioportal.model.TumorVsNormalsData;
 import org.cbioportal.service.TumorVsNormalsDataService;
 import org.cbioportal.service.exception.GeneNotFoundException;
-import org.cbioportal.service.exception.GeneticProfileNotFoundException;
+import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.web.config.annotation.InternalApi;
 import org.cbioportal.web.parameter.TumorVsNormalsDataIdentifiers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ public class TumorVsNormalsDataController {
 			@ApiParam(required = true, value = "Normals Tissue reference id e.g. gtex") @PathVariable String normalsReferenceId,
 			@ApiParam(required = false, value = "z-Score e.g. true/false") @PathVariable Boolean zScore,
 			@ApiParam(required = true, value = "List of identifiers") @RequestBody List<TumorVsNormalsDataIdentifiers> tvnDataIdentifiers)
-					throws GeneticProfileNotFoundException, GeneNotFoundException {
+					throws MolecularProfileNotFoundException, GeneNotFoundException {
 
 		Boolean calculatepValues = tvnDataIdentifiers.size() == 1;
 		Map<String, List<String>> geneticProfileSamplesMap = new HashMap<>();
