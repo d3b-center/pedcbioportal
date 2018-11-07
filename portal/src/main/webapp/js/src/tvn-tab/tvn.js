@@ -906,11 +906,7 @@ var boxPlot = (function() {
   };
 
   function exportTemplate(chart, type) {
-    var visibleLegendNames = _.map(_.filter(chart.legend['allItems'], function(legend) {
-      return legend['visible']
-    }), function(legend) {
-      return legend['name']
-    });
+    var visibleLegendNames = chart.xAxis[0].categories;
     chart.exportChart({
       sourceWidth: visibleLegendNames.length * 100,
       type: type
