@@ -17,10 +17,9 @@ import org.apache.commons.math3.stat.inference.TTest;
 import org.cbioportal.model.Gene;
 import org.cbioportal.model.GeneMolecularData;
 import org.cbioportal.model.MolecularProfile;
+import org.cbioportal.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.model.TumorVsNormalsData;
 import org.cbioportal.model.TumorVsNormalsDataSampleDataObject;
-import org.cbioportal.model.TypeOfCancer;
-import org.cbioportal.service.CancerTypeService;
 import org.cbioportal.service.GeneService;
 import org.cbioportal.service.MolecularDataService;
 import org.cbioportal.service.MolecularProfileService;
@@ -29,15 +28,11 @@ import org.cbioportal.service.exception.GeneNotFoundException;
 import org.cbioportal.service.exception.MolecularProfileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
 public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService {
-
-	@Autowired
-	private CancerTypeService cancerTypeService;
 
 	@Autowired
 	private GeneService geneService;
@@ -56,13 +51,55 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 	}
 
 	@Override
-	@PreAuthorize("hasPermission(#geneticProfileStableIds, 'List<GeneticProfileId>', 'read')")
-	public List<TumorVsNormalsData> getTVNData(List<String> geneticProfileStableIds,Map<String, List<String>> geneticProfileSamplesMap,
-			String normalsReferenceId, String geneSymbol, Boolean inputzScoreFlag, Boolean clacpValues)
-					throws MolecularProfileNotFoundException, GeneNotFoundException {
-		Gene gene = geneService.getGene(geneSymbol);
+	public List<TumorVsNormalsData> getTVNData(String molecularProfileId, String sampleListId, Integer entrezGeneId,
+			Boolean zScore) throws MolecularProfileNotFoundException, GeneNotFoundException {
+
+		List<GeneMolecularData> molecularDataList = molecularDataService.getMolecularData(molecularProfileId,
+				sampleListId, Arrays.asList(entrezGeneId), "SUMMARY");
+
+		return createTVNDATA(molecularProfileId, molecularDataList, entrezGeneId, zScore);
+
+	}
+
+	@Override
+	public List<TumorVsNormalsData> getTVNData(String molecularProfileId, List<String> sampleIds, Integer entrezGeneId,
+			Boolean zScore) throws MolecularProfileNotFoundException, GeneNotFoundException {
+
+		List<GeneMolecularData> molecularDataList = molecularDataService.fetchMolecularData(molecularProfileId,
+				sampleIds, Arrays.asList(entrezGeneId), "SUMMARY");
+
+		return createTVNDATA(molecularProfileId, molecularDataList, entrezGeneId, zScore);
+
+	}
+
+	private List<TumorVsNormalsData> createTVNDATA(String molecularProfileId, List<GeneMolecularData> molecularDataList,
+			Integer entrezGeneId, Boolean zScore) throws GeneNotFoundException, MolecularProfileNotFoundException {
+		// TODO Auto-generated method stub
+
+		Gene gene = geneService.getGene(entrezGeneId.toString());
+		MolecularProfile molecularProfile = molecularProfileService.getMolecularProfile(molecularProfileId);
+
+		String normalsReferenceId = null;
+		Boolean isDataAlreadyInLogValues = false;
+
+		List<String> temp = Arrays.asList(molecularProfile.getCancerStudyIdentifier() + "_rna_seq_mrna",
+				molecularProfile.getCancerStudyIdentifier() + "_rna_seq_v2_mrna",
+				molecularProfile.getCancerStudyIdentifier() + "_rna_seq_mrna_capture");
+
+		if (molecularProfile.getMolecularAlterationType().equals(MolecularAlterationType.MRNA_EXPRESSION)
+				&& molecularProfile.getDatatype().equals("CONTINUOUS")) {
+			if ((molecularProfile.getCancerStudyIdentifier() + "_mrna_U133").equals(molecularProfile.getStableId())) {
+				normalsReferenceId = "hgu133plus2";
+				isDataAlreadyInLogValues = true;
+			} else if (temp.contains(molecularProfile.getStableId())) {
+				normalsReferenceId = "gtex";
+			}
+		}
 
 		List<TumorVsNormalsData> result = new ArrayList<>();
+		if (normalsReferenceId == null) {
+			return new ArrayList<>();
+		}
 
 		// get normal tissue data
 		URI uri = null;
@@ -73,7 +110,7 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 			// TODO proper error handling. for now log error and return empty
 			// array
 			e2.printStackTrace();
-			return result;
+			return new ArrayList<>();
 		}
 
 		RestTemplate restTemplate = new RestTemplate();
@@ -90,75 +127,42 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 					.filter(normals_data -> normals_data.getValue().size() > 1).map(tissueObject -> {
 						TumorVsNormalsData tvnData = new TumorVsNormalsData();
 						tvnData.setIsTumorData(false);
-						tvnData.setIsLog(false);
 						tvnData.setName(tissueObject.getKey());
 						List<TumorVsNormalsDataSampleDataObject> tvnSampleDataObjects = tissueObject.getValue().stream()
 								.map(sampleObject -> {
-							Double value = sampleObject.getValue();
-							return new TumorVsNormalsDataSampleDataObject(sampleObject.getSample_id(), value);
-						}).collect(Collectors.toList());
+									Double value = sampleObject.getValue();
+									return new TumorVsNormalsDataSampleDataObject(sampleObject.getSample_id(), value);
+								}).collect(Collectors.toList());
 
 						tvnData.setData(tvnSampleDataObjects);
 						return tvnData;
 					}).collect(Collectors.toList());
 
-			// get tumor data
-			Map<MolecularProfile, List<String>> tumorInputData = geneticProfileSamplesMap.entrySet().stream()
-					.collect(Collectors.toMap(e -> {
-						try {
-							return molecularProfileService.getMolecularProfile(e.getKey());
-						} catch (Exception e1) {
-							// TODO : updated error handling
-							e1.printStackTrace();
-							return null;
-						}
-					} , e -> e.getValue()));
-
-			// process tumor data
-			List<TumorVsNormalsData> tumorData = tumorInputData.entrySet().stream()
-					.filter(geneticProfileData -> (geneticProfileData.getKey().getNormalsTissueReferenceId() != null
-							&& geneticProfileData.getKey().getNormalsTissueReferenceId().equals(normalsReferenceId)))
-					.map(geneticProfileData -> {
-						TumorVsNormalsData tvnData = new TumorVsNormalsData();
-						List<GeneMolecularData> values_temp;
-						try {
-							values_temp = molecularDataService.fetchMolecularData(geneticProfileData.getKey().getStableId(),
-									geneticProfileData.getValue(),
-									new ArrayList<>(Arrays.asList(gene.getEntrezGeneId())), "SUMMARY");
-							Boolean isDataLogd = geneticProfileData.getKey().getStableId().endsWith("mrna_U133");
-							
-							tvnData.setIsTumorData(true);
-							tvnData.setIsLog(isDataLogd);
-							tvnData.setName(geneticProfileData.getKey().getCancerStudy().getName());
-							TypeOfCancer typeOfCancer = cancerTypeService
-									.getCancerType(geneticProfileData.getKey().getCancerStudy().getTypeOfCancerId());
-							tvnData.setColor(typeOfCancer.getDedicatedColor());
-							tvnData.setStudyId(geneticProfileData.getKey().getCancerStudy().getCancerStudyIdentifier());
-							List<TumorVsNormalsDataSampleDataObject> tvnSampleDataObjects = new ArrayList<>();
-							for (GeneMolecularData geneticData : values_temp) {
-								Double value = Double.parseDouble(geneticData.getValue());
-								tvnSampleDataObjects
-										.add(new TumorVsNormalsDataSampleDataObject(geneticData.getSampleId(), value));
-							}
-							tvnData.setData(tvnSampleDataObjects);
-						} catch (Exception e) {
-							// TODO : updated error handling
-							e.printStackTrace();
-							return null;
-						}
-						return tvnData;
-					}).filter(x -> x != null).collect(Collectors.toList());
+			TumorVsNormalsData tumorData = new TumorVsNormalsData();
+			tumorData.setIsTumorData(true);
+			tumorData.setName(molecularProfile.getCancerStudy().getName());
+			tumorData.setStudyId(molecularProfile.getCancerStudyIdentifier());
+			List<TumorVsNormalsDataSampleDataObject> tvnSampleDataObjects = new ArrayList<>();
+			for (GeneMolecularData geneticData : molecularDataList) {
+				Double value = Double.parseDouble(geneticData.getValue());
+				tvnSampleDataObjects.add(new TumorVsNormalsDataSampleDataObject(geneticData.getSampleId(), value));
+			}
+			tumorData.setData(tvnSampleDataObjects);
 
 			normalsData.sort((TumorVsNormalsData t1, TumorVsNormalsData t2) -> t1.getName().compareTo(t2.getName()));
-			tumorData.sort((TumorVsNormalsData t1, TumorVsNormalsData t2) -> t1.getName().compareTo(t2.getName()));
 
-			Boolean isTumorDataloged = tumorData.stream().filter(x -> x.getIsLog()).count() > 0;
+			final Boolean _isDataAlreadyInLogValues = isDataAlreadyInLogValues;
 
 			// these values would be used if the number of studies is 1
 			// and/or if we need to calculate z-score values
-			double[] tumorValues = tumorData.stream().flatMapToDouble(x -> Arrays.stream(x.getSamplesData())).toArray();
+			double[] tumorValues = tumorData.getData().stream()
+					.mapToDouble(
+							y -> _isDataAlreadyInLogValues ? y.getValue() : (Math.log1p(y.getValue()) / Math.log(2)))
+					.toArray();
 
-			double[] normalValues = normalsData.stream().flatMapToDouble(x -> Arrays.stream(x.getSamplesData()))
+			double[] normalValues = normalsData.stream()
+					.flatMapToDouble(x -> Arrays.stream(
+							x.getData().stream().mapToDouble(y -> (Math.log1p(y.getValue()) / Math.log(2))).toArray()))
 					.toArray();
 
 			double[] values = ArrayUtils.addAll(tumorValues, normalValues);
@@ -169,39 +173,37 @@ public class TumorVsNormalsDataServiceImpl implements TumorVsNormalsDataService 
 			double deviationVal = deviation.evaluate(values, meanVal, 0, values.length);
 
 			// add tumor data to final object
-			result.addAll(tumorData.stream().map(x -> {
-				if (inputzScoreFlag) {
-					x.setData(x.getData().stream().map(y -> {
-						Double value = isTumorDataloged ? y.getValue() : (Math.log(y.getValue()) / Math.log(2));
-						y.setValue((value - meanVal) / deviationVal);
-						return y;
-					}).collect(Collectors.toList()));
+			result.add(tumorData);
+
+			tumorData.setData(tumorData.getData().stream().map(y -> {
+				if (zScore) {
+					Double value = _isDataAlreadyInLogValues ? y.getValue() : (Math.log1p(y.getValue()) / Math.log(2));
+					y.setValue((value - meanVal) / deviationVal);
 				}
-				return x;
+				return y;
 			}).collect(Collectors.toList()));
 
 			// add normal tissue data to final object
 			result.addAll(normalsData.stream().map(x -> {
-				// calcuate p-value if number of cancer studies selected is
-				// 1
-				if (tumorData.size() == 1) {
-					x.setpValue(calculatePvalues(tumorValues, x.getSamplesData()));
-				}
-				if (isTumorDataloged || inputzScoreFlag) {
-					x.setData(x.getData().stream().map(y -> {
-						// if tumor data is already in log values
-						Double value = isTumorDataloged || inputzScoreFlag ? (Math.log(y.getValue()) / Math.log(2)) : y.getValue();
-						// if input z_score flag is true
-						Double value2 = inputzScoreFlag ? ((value - meanVal) / deviationVal) : value;
-						y.setValue(value2);
-						return y;
-					}).collect(Collectors.toList()));
-				}
+				x.setpValue(calculatePvalues(tumorValues,
+						x.getData().stream().mapToDouble(y -> (Math.log1p(y.getValue()) / Math.log(2))).toArray()));
+
+				x.setData(x.getData().stream().map(y -> {
+					// if tumor data is already in log values
+					Double value = _isDataAlreadyInLogValues || zScore ? (Math.log1p(y.getValue()) / Math.log(2))
+							: y.getValue();
+					// if input z_score flag is true
+					Double value2 = zScore ? ((value - meanVal) / deviationVal) : value;
+
+					y.setValue(value2);
+					return y;
+				}).collect(Collectors.toList()));
 				return x;
 			}).collect(Collectors.toList()));
 
 		}
 		return result;
+
 	}
 
 	/**

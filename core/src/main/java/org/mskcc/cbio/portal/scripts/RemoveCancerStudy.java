@@ -62,7 +62,7 @@ public class RemoveCancerStudy extends ConsoleRunnable {
 	                    "Cancer study with identifier " +
 	                    cancerStudyIdentifier +
 	                    " found in database, removing...");
-	            DaoCancerStudy.deleteCancerStudy(cancerStudyIdentifier);
+	            DaoCancerStudy.deleteCancerStudyByCascade(cancerStudyIdentifier);
 	        }
 	        else {
 	            ProgressMonitor.setCurrentMessage(

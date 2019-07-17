@@ -32,6 +32,7 @@
 
 package org.mskcc.cbio.portal.model;
 
+import java.io.Serializable;
 import java.util.Properties;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -39,7 +40,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 /**
  * Class for genetic profile
  */
-public class GeneticProfile {
+public class GeneticProfile implements Serializable {
     private int geneticProfileId;
     private String stableId;
     private int cancerStudyId;
@@ -50,7 +51,6 @@ public class GeneticProfile {
     private String targetLine;
     private boolean showProfileInAnalysisTab;
     private Properties otherMetadataFields;
-    private String normalsTissueReferenceId;
 
     public GeneticProfile() {
       super();
@@ -192,14 +192,6 @@ public class GeneticProfile {
         }
     }
     
-    public String getNormalsTissueReferenceId() {
-		return normalsTissueReferenceId;
-	}
-
-	public void setNormalsTissueReferenceId(String normalsTissueReferenceId) {
-		this.normalsTissueReferenceId = normalsTissueReferenceId;
-	}
-
 	@Override
     public String toString() {
        return ToStringBuilder.reflectionToString(this);

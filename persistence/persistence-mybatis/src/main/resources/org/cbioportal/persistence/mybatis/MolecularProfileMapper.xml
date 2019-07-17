@@ -15,8 +15,7 @@
             genetic_profile.DATATYPE AS "${prefix}datatype",
             genetic_profile.NAME AS "${prefix}name",
             genetic_profile.DESCRIPTION AS "${prefix}description",
-            genetic_profile.SHOW_PROFILE_IN_ANALYSIS_TAB AS "${prefix}showProfileInAnalysisTab",
-            genetic_profile.NORMALS_TISSUE_REFERENCE_ID AS "${prefix}normalsTissueReferenceId"
+            genetic_profile.SHOW_PROFILE_IN_ANALYSIS_TAB AS "${prefix}showProfileInAnalysisTab"
         </if>
         <if test="projection == 'DETAILED'">
             ,

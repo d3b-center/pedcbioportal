@@ -226,7 +226,6 @@ public class GeneticProfileReader {
         String profileDescription = properties.getProperty("profile_description");
         String geneticAlterationTypeString = properties.getProperty("genetic_alteration_type");
         String datatype = properties.getProperty("datatype");
-        String normalsTissueReferenceId = properties.getProperty("normals_tissue_reference_id");
         if (profileName == null) {
             profileName = geneticAlterationTypeString;
         }
@@ -256,9 +255,6 @@ public class GeneticProfileReader {
         geneticProfile.setShowProfileInAnalysisTab(showProfileInAnalysisTab);
         geneticProfile.setTargetLine(properties.getProperty("target_line"));
         geneticProfile.setOtherMetadataFields(properties);
-        if (normalsTissueReferenceId != null) {
-        	geneticProfile.setNormalsTissueReferenceId(normalsTissueReferenceId);
-        }
         return geneticProfile;
     }
 

@@ -299,7 +299,7 @@ public final class DaoCancerStudy {
                     "( `CANCER_STUDY_IDENTIFIER`, `NAME`, "
                     + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, "
                     + "`PMID`, `CITATION`, `GROUPS`, `SHORT_NAME`, `STATUS`, "
-                    + "`IMPORT_DATE`, `IS_ADULT_CANCER` ) "
+                    + "`IMPORT_DATE`, `IS_PEDIATRIC_CANCER` ) "
                     + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
                     Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, stableId);
@@ -321,7 +321,7 @@ public final class DaoCancerStudy {
             //TODO - use this field in parts of the system that build up the list of studies to display in home page:
             pstmt.setInt(10, Status.UNAVAILABLE.ordinal());
             pstmt.setDate(11, java.sql.Date.valueOf(LocalDate.now()));
-            pstmt.setBoolean(12, cancerStudy.getIsAdultCancer());
+            pstmt.setBoolean(12, cancerStudy.getIsPediatricCancer());
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
@@ -336,6 +336,25 @@ public final class DaoCancerStudy {
         }
         reCacheAll();
     }
+
+    public static void addCancerStudyTags(CancerStudyTags cancerStudyTags) throws DaoException {
+    
+            Connection con = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            try {
+                con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
+                pstmt = con.prepareStatement("INSERT INTO cancer_study_tags " +
+                        "( `CANCER_STUDY_ID`,`TAGS` ) VALUES (?,?)");
+                pstmt.setInt(1, cancerStudyTags.getCancerStudyId());
+                pstmt.setString(2, cancerStudyTags.getTags());
+                pstmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new DaoException(e);
+            } finally {
+                JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
+            }
+        } 
 
     /**
      * Return the cancerStudy identified by the internal cancer study ID, if it exists.
@@ -521,14 +540,12 @@ public final class DaoCancerStudy {
                 "DELETE FROM genetic_profile_samples WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM sample_profile WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM mutation WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
-                "DELETE FROM mutation_count WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM mutation_count_by_keyword WHERE GENETIC_PROFILE_ID IN (SELECT GENETIC_PROFILE_ID FROM genetic_profile WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM clinical_attribute_meta WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM clinical_event_data WHERE CLINICAL_EVENT_ID IN (SELECT CLINICAL_EVENT_ID FROM clinical_event WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?))",
                 "DELETE FROM clinical_event WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM sample_list_list WHERE LIST_ID IN (SELECT LIST_ID FROM sample_list WHERE CANCER_STUDY_ID=?)",
                 "DELETE FROM clinical_sample WHERE INTERNAL_ID IN (SELECT INTERNAL_ID FROM sample WHERE PATIENT_ID IN (SELECT INTERNAL_ID FROM patient WHERE CANCER_STUDY_ID=?))",
-                "DELETE FROM fraction_genome_altered WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM copy_number_seg WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM copy_number_seg_file WHERE CANCER_STUDY_ID=?",
                 "DELETE FROM protein_array_data WHERE CANCER_STUDY_ID=?",
@@ -610,7 +627,7 @@ public final class DaoCancerStudy {
         cancerStudy.setShortName(rs.getString("SHORT_NAME"));
         cancerStudy.setInternalId(rs.getInt("CANCER_STUDY_ID"));
         cancerStudy.setImportDate(rs.getDate("IMPORT_DATE"));
-        cancerStudy.setIsAdultCancer(rs.getBoolean("IS_ADULT_CANCER"));
+        cancerStudy.setIsPediatricCancer(rs.getBoolean("IS_PEDIATRIC_CANCER"));
         return cancerStudy;
     }
 

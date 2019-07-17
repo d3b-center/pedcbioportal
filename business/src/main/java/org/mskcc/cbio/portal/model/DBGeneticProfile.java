@@ -19,5 +19,4 @@ public class DBGeneticProfile implements Serializable {
     public String study_id;
     public String genetic_alteration_type;
     public String show_profile_in_analysis_tab;
-    public String normals_tissue_reference_id;
 }

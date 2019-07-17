@@ -98,7 +98,7 @@ public class CancerStudyReader {
             throw new IllegalArgumentException("short_name is not specified.");
         }
         
-        String isAdultCancer = properties.getProperty("is_adult_cancer");
+        String isPediatricCancer = properties.getProperty("is_pediatric_cancer");
 
         CancerStudy cancerStudy = new CancerStudy(name, description, cancerStudyIdentifier,
                                                   typeOfCancer, publicStudy(properties));
@@ -106,8 +106,8 @@ public class CancerStudyReader {
         cancerStudy.setCitation(properties.getProperty("citation"));
         cancerStudy.setGroupsInUpperCase(properties.getProperty("groups"));
         cancerStudy.setShortName(shortName);
-        if ( isAdultCancer != null) {
-        	cancerStudy.setIsAdultCancer(Boolean.valueOf(isAdultCancer));
+        if (isPediatricCancer != null) {
+        		cancerStudy.setIsPediatricCancer(Boolean.valueOf(isPediatricCancer));
         }
 
         return cancerStudy;

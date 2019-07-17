@@ -39,6 +39,7 @@ import org.mskcc.cbio.portal.web_api.*;
 import org.apache.commons.lang.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cbioportal.model.MolecularProfile;
 import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudy;
 import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudyData;
 import org.mskcc.cbio.portal.model.virtualstudy.VirtualStudySamples;
@@ -520,7 +521,9 @@ public class QueryBuilder extends HttpServlet {
                 inputStudySampleMap.keySet().parallelStream().forEach((String _cancerStudyId) -> {
                     try {
                         for(SampleList sampleList:GetSampleLists.getSampleLists(_cancerStudyId)) {
-							if (sampleList.getSampleListCategory().equals(sampleListCategory)) {
+							if (sampleList.getSampleListCategory().equals(sampleListCategory)
+									|| (sampleListCategory.equals(SampleListCategory.ALL_CASES_IN_STUDY)
+											&& sampleList.getStableId().equals(_cancerStudyId + "_all"))) {
 								List<String> sampleIds = sampleList.getSampleList();
 								if (inputStudySampleMap.get(_cancerStudyId).size() > 0) {
 									sampleIds.retainAll(inputStudySampleMap.get(_cancerStudyId));
@@ -562,11 +565,18 @@ public class QueryBuilder extends HttpServlet {
                 if (profileId != null && profileId.length() != 0)
                     geneticProfileMap.put(profileId, GeneticProfileUtil.getProfile(profileId, geneticProfileList));
             }
+            
+            List<String> validStableIds =  Arrays.asList("_rna_seq_mrna", "_rna_seq_v2_mrna", "_rna_seq_mrna_capture", "_mrna_U133");
+            
             for(GeneticProfile  geneticProfile : geneticProfileList) {
-                if(geneticProfile.getNormalsTissueReferenceId() != null) {
-                    showTvnTab = true;
-                    break;
-                }
+            		List<String> validMolecularProfiles = new ArrayList<>();
+            		validStableIds.forEach(stableId -> validMolecularProfiles.add(cancerStudyId+stableId));
+            		if(geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION && 
+            				geneticProfile.getDatatype().equals("CONTINUOUS") && 
+            				validStableIds.contains(geneticProfile.getStableId())) {
+            			showTvnTab = true;
+            			break;
+            		}
             }
             if (inputStudySampleMap.size()>1 || !inputStudySampleMap.containsKey(singleStudyId)) {
                 HashMap<String, GeneticProfile> defaultGeneticProfileSet = null;

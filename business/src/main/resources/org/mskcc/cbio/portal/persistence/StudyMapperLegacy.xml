@@ -16,7 +16,7 @@
         CITATION as citation,
         GROUPS as groups,
         CANCER_STUDY_ID  as internal_id,
-        IS_ADULT_CANCER as is_adult_cancer
+        IS_PEDIATRIC_CANCER as is_pediatric_cancer
     from cancer_study
     where CANCER_STUDY_IDENTIFIER in <foreach item="item" collection="study_ids" open="(" separator="," close=")">#{item}</foreach>
 </select>
@@ -31,7 +31,7 @@
         CITATION as citation,
         GROUPS as groups,
         CANCER_STUDY_ID as internal_id,
-        IS_ADULT_CANCER as is_adult_cancer
+        IS_PEDIATRIC_CANCER as is_pediatric_cancer
     from cancer_study
 </select>    
 </mapper>

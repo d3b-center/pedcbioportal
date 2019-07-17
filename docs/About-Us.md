@@ -13,8 +13,11 @@ The PedcBioPortal for Cancer Genomics is an instance of the [cBioPortal](http://
 * Angelica Ochoa
 * Aaron Lisman
 * Manda Wilson
-* Jiaojiao Wang
 * Avery Wang
+* Jing Su
+* Ramyasree Madupuri
+* Gaofei Zhao
+* Xiang Li
 * Nikolaus Schultz
 
 ## Dana-Farber Cancer Institute
@@ -24,7 +27,6 @@ The PedcBioPortal for Cancer Genomics is an instance of the [cBioPortal](http://
 * Augustin Luna
 * James Lindsay
 * Priti Kumari
-* Catherine Del Vecchio
 * Chris Sander
 
 ## Princess Margaret Cancer Centre, Toronto
@@ -44,16 +46,15 @@ The PedcBioPortal for Cancer Genomics is an instance of the [cBioPortal](http://
 * Fedde Schaeffer
 * Sander Tan
 * Oleguer Plantalech
-* Irina Pulyakhina
+* Pim van Nierop
 * Riza Nugraha
-* Dionne Zaal
 * Sjoerd van Hagen
 * Kees van Bochove
 
 ## Bilkent University
 * Ugur Dogrusoz
 * Istemi Bahceci
-* Leonard Dervishi
+* Kaan Sancak
 
 ## Weill Cornell Medicine
 * Alexandros Sigaras
@@ -64,8 +65,10 @@ The PedcBioPortal for Cancer Genomics is an instance of the [cBioPortal](http://
 * Caitlin Byrne
 * Hsiao-Wei Chen
 * Fred Criscuolo
+* Leonard Dervishi
 * Gideon Dresdner
 * Andy Dufilie
+* Catherine Del Vecchio Fitz
 * Arthur Goldberg
 * Zachary Heins
 * Michael Heuer
@@ -74,9 +77,12 @@ The PedcBioPortal for Cancer Genomics is an instance of the [cBioPortal](http://
 * Dong Li
 * Tamba Monrose
 * Peter Kok
+* Irina Pulyakhina
 * M. Furkan Sahin
+* Jiaojiao Wang
 * Stuart Watt
 * James Xu
+* Dionne Zaal
 
 ## Funding for the cBioPortal for Cancer Genomics is or has been provided by:
 

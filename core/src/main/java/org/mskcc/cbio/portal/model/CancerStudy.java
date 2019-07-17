@@ -66,7 +66,7 @@ public class CancerStudy {
     private Set<String> groups;
     private String shortName;
     private Date importDate;
-    private Boolean isAdultCancer = false;
+    private Boolean isPediatricCancer = false;
     
 
     /**
@@ -193,12 +193,12 @@ public class CancerStudy {
         this.citation = citation;
     }
     
-	public Boolean getIsAdultCancer() {
-		return isAdultCancer;
+	public Boolean getIsPediatricCancer() {
+		return isPediatricCancer;
 	}
 
-	public void setIsAdultCancer(Boolean isAdultCancer) {
-		this.isAdultCancer = isAdultCancer;
+	public void setIsPediatricCancer(Boolean isPediatricCancer) {
+		this.isPediatricCancer = isPediatricCancer;
 	}
 
 	/**

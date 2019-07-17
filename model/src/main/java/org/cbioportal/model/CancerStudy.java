@@ -18,7 +18,7 @@ public class CancerStudy implements Serializable {
     private String citation;
     private String groups;
     private Integer status;
-    private Boolean isAdultCancer;
+    private Boolean isPediatricCancer;
     private Date importDate;
     private TypeOfCancer typeOfCancer;
     private Integer allSampleCount;
@@ -216,12 +216,12 @@ public class CancerStudy implements Serializable {
         this.completeSampleCount = completeSampleCount;
     }
 
-	public Boolean getIsAdultCancer() {
-		return isAdultCancer;
+	public Boolean getIsPediatricCancer() {
+		return isPediatricCancer;
 	}
 
-	public void setIsAdultCancer(Boolean isAdultCancer) {
-		this.isAdultCancer = isAdultCancer;
+	public void setIsPediatricCancer(Boolean isPediatricCancer) {
+		this.isPediatricCancer = isPediatricCancer;
 	}
     
 }

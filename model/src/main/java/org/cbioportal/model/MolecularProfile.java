@@ -9,6 +9,9 @@ public class MolecularProfile implements Serializable {
     // don't forget to change the original one too
     public enum MolecularAlterationType {
         MUTATION_EXTENDED,
+        // uncalled mutations (mskcc internal) for showing read counts even if
+        // mutation wasn't called
+        MUTATION_UNCALLED,
         FUSION,
         STRUCTURAL_VARIANT,
         COPY_NUMBER_ALTERATION,
@@ -37,7 +40,6 @@ public class MolecularProfile implements Serializable {
     private String description;
     private Boolean showProfileInAnalysisTab;
     private CancerStudy cancerStudy;
-    private String normalsTissueReferenceId;
 
     public Integer getMolecularProfileId() {
         return molecularProfileId;
@@ -119,13 +121,4 @@ public class MolecularProfile implements Serializable {
         this.cancerStudy = cancerStudy;
     }
 
-	public String getNormalsTissueReferenceId() {
-		return normalsTissueReferenceId;
-	}
-
-	public void setNormalsTissueReferenceId(String normalsTissueReferenceId) {
-		this.normalsTissueReferenceId = normalsTissueReferenceId;
-	}
-    
-    
 }

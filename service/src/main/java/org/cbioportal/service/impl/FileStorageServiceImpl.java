@@ -37,7 +37,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 		List<String> result = new ArrayList<>();
 		if (!StringUtils.isEmpty(directory)) {
 			try {
-				List<CancerStudy> allStudies = studyService.getAllStudies("ID", 10000000, 0, null, "ASC");
+				List<CancerStudy> allStudies = studyService.getAllStudies(null, "SUMMARY", 10000000, 0, null, "ASC");
 				Map<String, String> studiesSet = new HashMap<>();
 				allStudies.forEach(
 						e -> studiesSet.put(e.getCancerStudyIdentifier() + ".tar.gz", e.getCancerStudyIdentifier()));
@@ -59,7 +59,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 	public Resource loadFileAsResource(String fileName) throws FileNotFoundException {
 		if (!StringUtils.isEmpty(directory)) {
 			try {
-				List<CancerStudy> allStudies = studyService.getAllStudies("ID", 10000000, 0, null, "ASC");
+				List<CancerStudy> allStudies = studyService.getAllStudies(null,"SUMMARY", 10000000, 0, null, "ASC");
 				Map<String, String> studiesSet = new HashMap<>();
 				allStudies.forEach(
 						e -> studiesSet.put(e.getCancerStudyIdentifier() + ".tar.gz", e.getCancerStudyIdentifier()));
